@@ -44,7 +44,8 @@ for snr_path in pathlist:
             Stage7_line = re.match(r'\.stage\s(\S*) (\S*) (\S*) (\S*)',line)
             Stage8_line = re.match(r'\.stage\s(\S*) (\d{1}) (\d{1}) (\S*) (\d{1}) (\d{1}) (\S*) (\d{1})',line)
             BGM_line = re.match(r'\.playBGM',line)
-            SE_line = re.match(r'\.playSE (\S*).ogg',line)
+            SE_line = re.match(r'\.playSE (\S*)',line)
+            Window_line = re.match(r'\.panel\s([0-9]+)([\s]*)([0-9]*)',line)
             Label_line = re.match(r'\.label (\S*)',line)
             Chain_line = re.match(r'\.chain (\S*).sc',line)
             Include_line = re.match(r'\.include (\S*).sc',line)
@@ -53,17 +54,22 @@ for snr_path in pathlist:
 
 
             if TKT_line:
-                NoNameKigo = re.sub(r'@||#','',TKT_line[3])
-                NorubyTXT = re.sub(r'\{\S*}||\\n','',TKT_line[4])
+
+                VoicePath = TKT_line[2]
+                NoNameKigo = re.sub(r'@|#','',TKT_line[3])
+                NorubyTXT = re.sub(r'\{\S*}|\\n|\\N','',TKT_line[4])
             
-                line = '[' + NoNameKigo + '|' + TKT_line[2] + ']' + NorubyTXT + '\n'
+                line = '[' + NoNameKigo + '|' + VoicePath + ']' + NorubyTXT + '\n'
+
+                if '#' in line:
+                    print(line)
 
             elif Stage1_line:
                 #BGや立ち絵の調節をします。最長一致から並べていきます
 
-                linea = 'cspchar \nlspsy 37, "bg\\' + Stage1_line[1] + ',640,360 \n'
-                lineb = 'lspsy 36, "st\\st' + Stage1_line[4] + ',640,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage1_line[6] + ',640,360 \nprint 10,300\n'
+                linea = 'cspchar \nlspsy 37, "bg\\' + Stage1_line[1] + ',384,288 \n'
+                lineb = 'lspsy 36, "st\\st' + Stage1_line[4] + ',384,288\n'
+                linec = 'lspsy 35, "st\\st' + Stage1_line[6] + ',384,288 \nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n' + linec + '\n'
                 
@@ -71,57 +77,57 @@ for snr_path in pathlist:
 
             elif Stage2_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage2_line[1] + ',640,360 \n'
-                lineb = 'lspsy 36, "st\\st' + Stage2_line[4] + ',640,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage2_line[6] + ',640,360 \nprint 10,300\n'
+                linea = 'cspchar\nlspsy 37, "bg\\' + Stage2_line[1] + ',384,288 \n'
+                lineb = 'lspsy 36, "st\\st' + Stage2_line[4] + ',384,288\n'
+                linec = 'lspsy 35, "st\\st' + Stage2_line[6] + ',384,288 \nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n' + linec + '\n'
                 
 
             elif Stage3_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage3_line[1] + ',640,360 \n'
-                lineb = 'lspsy 36, "st\\st' + Stage3_line[4] + ',640,360\n'
+                linea = 'cspchar\nlspsy 37, "bg\\' + Stage3_line[1] + ',384,288 \n'
+                lineb = 'lspsy 36, "st\\st' + Stage3_line[4] + ',384,288\n'
 
                 line = linea + '\n' + lineb + '\n'
                 
 
             elif Stage4_line:
-                line = 'cspchar\nlspsy 37, "bg\\' + Stage4_line[1] + ',640,360 \n'
+                line = 'cspchar\nlspsy 37, "bg\\' + Stage4_line[1] + ',384,288 \n'
                 
                 
 
             elif Stage5_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage5_line[1] + ',640,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage5_line[4] + ',640,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage5_line[5] + ',640,360 \nprint 10,300\n'
+                linea = 'cspchar\nlspsy 37, "bg\\' + Stage5_line[1] + ',384,288 \n'
+                lineb = 'lspsy 36, "bg\\' + Stage5_line[4] + ',384,288\n'
+                linec = 'lspsy 35, "st\\st' + Stage5_line[5] + ',384,288 \nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n' + linec + '\n'
                 
 
             elif Stage6_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage6_line[4] + ',640,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage6_line[7] + ',640,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage6_line[1] + ',640,360 \nprint 10,300\n'
+                linea = 'cspchar\nlspsy 37, "bg\\' + Stage6_line[4] + ',384,288 \n'
+                lineb = 'lspsy 36, "bg\\' + Stage6_line[7] + ',384,288\n'
+                linec = 'lspsy 35, "st\\st' + Stage6_line[1] + ',384,288 \nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n' + linec + '\n'
                 
 
             elif Stage7_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage7_line[1] + ',640,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage7_line[2] + ',640,360\n'
+                linea = 'cspchar\nlspsy 37, "bg\\' + Stage7_line[1] + ',384,288 \n'
+                lineb = 'lspsy 36, "bg\\' + Stage7_line[2] + ',384,288\n'
 
                 line = linea + '\n' + lineb + '\n'
                 
 
             elif Stage8_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage8_line[1] + ',640,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage8_line[4] + ',640,360\n'
-                linec = 'lspsy 35, "bg\\' + Stage8_line[7] + ',640,360 \nprint 10,300\n'
+                linea = 'cspchar\nlspsy 37, "bg\\' + Stage8_line[1] + ',384,288 \n'
+                lineb = 'lspsy 36, "bg\\' + Stage8_line[4] + ',384,288\n'
+                linec = 'lspsy 35, "bg\\' + Stage8_line[7] + ',384,288 \nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n' + linec + '\n'
                 
@@ -142,7 +148,40 @@ for snr_path in pathlist:
 
             elif SE_line:
 
-                line = 'dwave 1,`se\\' + SE_line[1] + '.ogg` \n'
+                SESTART =re.match(r'\.playSE (\S*).ogg',line)
+
+                if SESTART:
+                
+                    line = 'dwave 1,`se\\' + SE_line[1] + '.ogg` \n'
+
+                else:
+
+                    line = 'dwavestop\n'
+
+            elif Window_line:
+                #ウインドウモードの切替です。0で非表示、1で画像通り、2で全画面です 3は電話演出用
+
+                
+
+                if '0' in Window_line[1]:
+
+                    line = 'setwin0\n'
+                    #print(line)
+
+                elif '1' in Window_line[1]:
+
+                    line = 'setwin1\n'
+                    #print(line)
+
+                elif '2' in Window_line[1]:
+
+                    line = 'setwin2\n'
+                    #print(line)
+
+                else:
+                    line = ';' + line
+                    print(Window_line[1])
+
 
             elif Label_line:
 
@@ -196,7 +235,7 @@ for snr_path in pathlist:
 
     
 
-#print('猫猫柔軟')
+print('猫猫柔軟')
 
 open(os.path.join(same_hierarchy,'0.txt'), 'w', errors='ignore').write(txt)
 
