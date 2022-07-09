@@ -1,0 +1,60 @@
+;$V2000G1000S800,600L10000
+*define
+caption "HARU2NS4ONStest"
+
+defsub setwin0
+defsub setwin1
+defsub setwin2
+defsub setwin3
+
+game
+
+
+*start
+
+goto *title
+
+*setwin0
+textoff
+return
+
+*setwin1
+textoff
+setwindow3 50,480,32,3,19,19,1,2,10,1,1,":a;sys/msgPanel.png",0,417
+return
+
+*setwin2
+textoff
+return
+
+*title
+lsph 101 ":a;sys/mainmenuNewGame.png",570,45
+lsph 102 ":a;sys/mainmenuLoadGame.png",570,90
+lsph 103 ":a;sys/mainmenuSystem.png",570,135
+lsph 104 ":a;sys/mainmenuMemories.png",570,180
+lsph 105 ":a;sys/mainmenuExit.png",570,225
+lsph 110 ":a;sys/topmenu.png",0,0
+vsp 101,1
+vsp 102,1
+vsp 103,1
+vsp 104,1
+vsp 105,1
+vsp 110,1
+print 1
+
+
+*title_loop
+
+setwin1
+あいうえお７００@
+goto *title_loop
+
+setwin1
+猫猫柔軟
+setwin0
+
+setwin1
+ウ　ン　チ　ー　コ　ン　グ@
+
+end
+
