@@ -1,0 +1,86 @@
+;$V2000G1000S800,600L10000
+*define
+caption "HARU2NS4ONStest"
+nsa
+
+globalon
+defsub setwin0
+defsub setwin1
+defsub setwin2
+defsub setwin3
+defsub cspchar
+defsub csptitle
+game
+;スプライト番号一覧
+;
+;31~32　立ち絵
+;37,38　演出背景
+;39　標準背景
+;41~45　タイトル画面ボタン
+;49　タイトル背景
+
+;------------------定義域ここまで-------------------
+
+*start
+
+goto *title
+
+*setwin0
+textoff
+return
+
+*setwin1
+textoff
+setwindow3 50,480,32,3,20,20,1,2,10,1,1,":a;sys/msgPanel.png",0,417
+return
+
+*setwin2
+textoff
+setwindow3 100,50,24,10,20,20,1,2,10,1,1,":a;sys/fullPanel.png",0,0
+return
+
+*cspchar
+csp 37
+csp 38
+csp 39
+csp 31
+csp 32
+print 10,300
+return
+
+*csptitle
+csp 41
+csp 42
+csp 43
+csp 44
+csp 45
+csp 49
+print 10,300
+return
+
+;----------追加命令ここまで-------------
+
+*title
+lsph 41,":a;sys/mainmenuNewGame.png",570,45
+lsph 42,":a;sys/mainmenuLoadGame.png",570,90
+lsph 43,":a;sys/mainmenuSystem.png",570,135
+lsph 44,":a;sys/mainmenuMemories.png",570,180
+lsph 45,":a;sys/mainmenuExit.png",570,225
+lsph 49,":a;sys/topmenu.png",0,0
+vsp 41,1
+vsp 42,1
+vsp 43,1
+vsp 44,1
+vsp 45,1
+vsp 49,1
+print 1
+
+wait 1000
+
+csptitle
+
+goto *A_001
+end
+
+;-------------------シナリオここから------------------
+
