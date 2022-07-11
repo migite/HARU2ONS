@@ -88,7 +88,14 @@ for snr_path in pathlist:
                     Enter_line = '\\\n'
 
             
-                line = '[' + NoNameKigo + '|' + VoicePath + ']' + NorubyTXT + Enter_line
+                linea = 'dwave 0 "voice\\' + VoicePath + '.ogg"\n'
+                lineb = '[' + NoNameKigo +  ']' + NorubyTXT + Enter_line
+
+                if VoicePath == '':
+                    line = lineb
+
+                else:
+                    line = linea + lineb
 
                 Messege_before = Messege_line
 
@@ -100,69 +107,76 @@ for snr_path in pathlist:
             elif Stage1_line:
                 #BGや立ち絵の調節をします。最長一致から並べていきます
 
-                linea = 'cspchar \nlspsy 37, "bg\\' + Stage1_line[1] + ',480,360 \n'
-                lineb = 'lspsy 36, "st\\st' + Stage1_line[4] + ',480,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage1_line[6] + ',480,360 \nprint 10,300\n'
+                linea = 'cspchar \nlsph 39, ":a;bg\\' + Stage1_line[1] + '",' + Stage1_line[2] + ',' + Stage1_line[3] + '\n'
+                lineb = 'lsph 32, ":a;st\\st' + Stage1_line[4] + '",160,80\n'
+                linec = 'lsph 31, ":a;st\\st' + Stage1_line[6] + '",320,80 \n'
+                lined = 'vsp 39,1\nvsp 32,1\nvsp 31,1\nprint 10,300\n'
 
-                line = linea + '\n' + lineb + '\n' + linec + '\n'
+                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined +'\n'
                 
                 
 
             elif Stage2_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage2_line[1] + ',480,360 \n'
-                lineb = 'lspsy 36, "st\\st' + Stage2_line[4] + ',480,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage2_line[6] + ',480,360 \nprint 10,300\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage2_line[1] + '",' + Stage2_line[2] + ',' + Stage2_line[3] + '\n'
+                lineb = 'lsph 32, ":a;st\\st' + Stage2_line[4] + '",160,80\n'
+                linec = 'lsph 31, ":a;st\\st' + Stage2_line[6] + '",320,80\n'
+                lined = 'vsp 39,1\nvsp 32,1\nvsp 31,1\nprint 10,300\n'
 
-                line = linea + '\n' + lineb + '\n' + linec + '\n'
+                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
                 
 
             elif Stage3_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage3_line[1] + ',480,360 \n'
-                lineb = 'lspsy 36, "st\\st' + Stage3_line[4] + ',480,360\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage3_line[1] + '",' + Stage3_line[2] + ',' + Stage3_line[3]  + '\n'
+                lineb = 'lsph 31, ":a;st\\st' + Stage3_line[4] + '",240,80\n'
+                linec = 'vsp 39,1\nvsp 31,1\nprint 10,300\n'
 
-                line = linea + '\n' + lineb + '\n'
+                line = linea + '\n' + lineb + '\n' + linec +'\n'
                 
 
             elif Stage4_line:
-                line = 'cspchar\nlspsy 37, "bg\\' + Stage4_line[1] + ',480,360 \n'
-                
-                
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage4_line[1] + '",' + Stage4_line[2] + ',' + Stage4_line[3] + '\nprint 10,300\n'
+                lineb = 'vsp 39,1\nprint 10,300\n'
 
+                line = linea + '\n' + lineb + '\n'
+                
             elif Stage5_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage5_line[1] + ',480,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage5_line[4] + ',480,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage5_line[5] + ',480,360 \nprint 10,300\n'
-
-                line = linea + '\n' + lineb + '\n' + linec + '\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage5_line[1] + '",' + Stage5_line[2] + ',' + Stage5_line[3] + '\n'
+                lineb = 'lsph 38, ":a;bg\\' + Stage5_line[4] + '",0,0\n'
+                linec = 'lsph 31, ":a;st\\st' + Stage5_line[5] + '",240,80 \n'
+                lined = 'vsp 39,1\nvsp 38,1\nvsp 31,1\nprint 10,300\n'
+                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
                 
 
             elif Stage6_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage6_line[4] + ',480,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage6_line[7] + ',480,360\n'
-                linec = 'lspsy 35, "st\\st' + Stage6_line[1] + ',480,360 \nprint 10,300\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage6_line[4] + '",' + Stage6_line[5] + ',' + Stage6_line[6] +  '\n'
+                lineb = 'lsph 38, ":a;bg\\' + Stage6_line[7] + '",0,0\n'
+                linec = 'lsph 31, ":a;st\\st' + Stage6_line[1] + '",240,80 \n'
+                lined = 'vsp 39,1\nvsp 38,1\nvsp 31,1\nprint 10,300\n'
 
-                line = linea + '\n' + lineb + '\n' + linec + '\n'
+                line = linea + '\n' + lineb + '\n' + linec + lined + '\n'
                 
 
             elif Stage7_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage7_line[1] + ',480,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage7_line[2] + ',480,360\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage7_line[1] + '",240,80 \n'
+                lineb = 'lsph 38, ":a;bg\\' + Stage7_line[2] + '",' + Stage7_line[3] + ',' + Stage7_line[4] +  '\n'
+                lined = 'vsp 39,1\nvsp 32,1\nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n'
                 
 
             elif Stage8_line:
 
-                linea = 'cspchar\nlspsy 37, "bg\\' + Stage8_line[1] + ',480,360 \n'
-                lineb = 'lspsy 36, "bg\\' + Stage8_line[4] + ',480,360\n'
-                linec = 'lspsy 35, "bg\\' + Stage8_line[7] + ',480,360 \nprint 10,300\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage8_line[1] + '",' + Stage8_line[2] + ',' + Stage8_line[3] +  '\n'
+                lineb = 'lsph 38, ":a;bg\\' + Stage8_line[4] + '",' + Stage8_line[5] + ',' + Stage8_line[6] +  '\n'
+                linec = 'lsph 37, ":a;bg\\' + Stage8_line[7] + '",0,0\nprint 10,300\n'
+                lined = 'vsp 39,1\nvsp 38,1\nvsp 37,1\nprint 10,300'
 
-                line = linea + '\n' + lineb + '\n' + linec + '\n'
+                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
                 
             #背景CG・立ち絵の処理ここまで
 
@@ -189,29 +203,34 @@ for snr_path in pathlist:
 
                 else:
 
-                    line = 'dwavestop\n'
+                    line = 'dwavestop 1\n'
 
             elif Window_line:
                 #ウインドウモードの切替です。0で非表示、1で画像通り、2で全画面です 3は電話演出用
-
+                #Screen_line変数は改行の仕方を変えるためにテストでおいています
+                #0のときはメッセージごとに改行、1のときはメッセージ番号が前の番号から変わったら改行です
                 
 
-                if '0' in Window_line[1]:
+                if str(Window_line[1]) == 0:
 
                     line = 'setwin0\n'
                     #print(line)
 
-                elif '1' in Window_line[1]:
+                elif str(Window_line[1]) == 1:
 
                     line = 'setwin1\n'
                     Screen_line = 0
                     #print(line)
 
-                elif '2' in Window_line[1]:
+                elif str(Window_line[1]) == 2:
 
                     line = 'setwin2\n'
                     Screen_line = 1
                     #print(line)
+
+                elif str(Window_line[1]) == 3:
+                    line = 'setwin3\n'
+                    Screen_line = 0
 
                 else:
                     line = ';' + line
@@ -230,10 +249,11 @@ for snr_path in pathlist:
 
                     line = '*' + Label_line[1] + '_' + str(Labelcount2) + '\n'
 
-                    print(line)
+                    #print(line)
                 
                 else:
                     line = '*' + Label_line[1] + '\n'
+                    print(line)
                     
 
             elif Include_line:
@@ -241,10 +261,8 @@ for snr_path in pathlist:
 
             elif Shake_line:
                 #未作成・dafault.txtで処理する書き方にする予定
-                line = line
+                line = 'quake ' + Shake_line[2] + ',' + Shake_line[3] + '\n'
                 
-
-
             elif re.match(r'\.wait [0-9]',line):
                 
                 #line.replace('\.wait','wait')  + '\\\n'
@@ -252,7 +270,7 @@ for snr_path in pathlist:
                 
             elif Chain_line:
 
-                line = 'goto *' + Chain_line[1] + '\n'
+                line = 'goto *' + Chain_line[1] + '\nend\n'
                 #print(line)
 
             elif File_line:
@@ -269,7 +287,7 @@ for snr_path in pathlist:
                 Labelcount  = Labelcount + 1
                 #print(Labelcount)
                 
-                print(line)
+                #print(line)
 
             elif Select2_line:
 
@@ -279,12 +297,12 @@ for snr_path in pathlist:
                 line = 'select ' + linea + lineb
                 Labelcount  = Labelcount + 1
                 #print(Labelcount)
-                print(line)
+                #print(line)
 
 
             elif '.end' in line:
 
-                line = 'end\n'
+                line = ';end\n'
 
             else:
                 #if '.stage' in line:
