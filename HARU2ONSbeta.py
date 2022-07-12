@@ -58,6 +58,7 @@ for snr_path in pathlist:
             File_line = re.match(r'\; ファイル: (\S*).txt',line)
             Select3_line = re.match(r'\.select\s(\S*):(\S*)\s(\S*):(\S*)\s(\S*):(\S*)',line)
             Select2_line = re.match(r'\.select\s(\S+):(\S+)\s(\S+):(\S+)',line)
+            movie_line = re.match(r'\.movie\s(\S*)\s(\S*).mpg',line)
 
 
             if TKT_line:
@@ -88,7 +89,7 @@ for snr_path in pathlist:
                     Enter_line = '\\\n'
 
             
-                linea = 'dwave 0 "voice\\' + VoicePath + '.ogg"\n'
+                linea = 'dwave 0, "voice\\' + VoicePath + '.ogg"\n'
                 lineb = '[' + NoNameKigo +  ']' + NorubyTXT + Enter_line
 
                 if VoicePath == '':
@@ -124,6 +125,7 @@ for snr_path in pathlist:
                 lined = 'vsp 39,1\nvsp 32,1\nvsp 31,1\nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
+                print(line)
                 
 
             elif Stage3_line:
@@ -211,24 +213,24 @@ for snr_path in pathlist:
                 #0のときはメッセージごとに改行、1のときはメッセージ番号が前の番号から変わったら改行です
                 
 
-                if str(Window_line[1]) == 0:
+                if '0' in Window_line[1]:
 
                     line = 'setwin0\n'
                     #print(line)
 
-                elif str(Window_line[1]) == 1:
+                elif '1' in Window_line[1]:
 
                     line = 'setwin1\n'
                     Screen_line = 0
                     #print(line)
 
-                elif str(Window_line[1]) == 2:
+                elif '2' in Window_line[1]:
 
                     line = 'setwin2\n'
                     Screen_line = 1
                     #print(line)
 
-                elif str(Window_line[1]) == 3:
+                elif '3' in Window_line[1]:
                     line = 'setwin3\n'
                     Screen_line = 0
 
@@ -253,7 +255,7 @@ for snr_path in pathlist:
                 
                 else:
                     line = '*' + Label_line[1] + '\n'
-                    print(line)
+                    #print(line)
                     
 
             elif Include_line:
@@ -303,6 +305,10 @@ for snr_path in pathlist:
             elif '.end' in line:
 
                 line = ';end\n'
+
+            elif movie_line:
+
+                line = 'movie "mov\\' + movie_line[2] + '.mpg",click\nprint10,300\n'
 
             else:
                 #if '.stage' in line:
