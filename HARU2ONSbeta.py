@@ -59,6 +59,10 @@ for snr_path in pathlist:
             Select3_line = re.match(r'\.select\s(\S*):(\S*)\s(\S*):(\S*)\s(\S*):(\S*)',line)
             Select2_line = re.match(r'\.select\s(\S+):(\S+)\s(\S+):(\S+)',line)
             movie_line = re.match(r'\.movie\s(\S*)\s(\S*).mpg',line)
+            if_line1 = re.match(r'\.if (\S*) (\S*) < (\S*)',line)
+            if_line2 = re.match(r'\.if (\S*) (\S*) > (\S*)',line)
+            Jump_line = re.match(r'\.goto\s(\S*)',line)
+            mov_line = re.match(r'\.setGlobal (\S*) = (\S*)',line)
 
 
             if TKT_line:
@@ -108,7 +112,7 @@ for snr_path in pathlist:
             elif Stage1_line:
                 #BGや立ち絵の調節をします。最長一致から並べていきます
 
-                linea = 'cspchar \nlsph 39, ":a;bg\\' + Stage1_line[1] + '",' + Stage1_line[2] + ',' + Stage1_line[3] + '\n'
+                linea = 'cspchar \nlsph 39, ":a;bg\\' + Stage1_line[1] + '",-' + Stage1_line[2] + ',-' + Stage1_line[3] + '\n'
                 lineb = 'lsph 32, ":a;st\\st' + Stage1_line[4] + '",160,80\n'
                 linec = 'lsph 31, ":a;st\\st' + Stage1_line[6] + '",320,80 \n'
                 lined = 'vsp 39,1\nvsp 32,1\nvsp 31,1\nprint 10,300\n'
@@ -119,18 +123,18 @@ for snr_path in pathlist:
 
             elif Stage2_line:
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage2_line[1] + '",' + Stage2_line[2] + ',' + Stage2_line[3] + '\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage2_line[1] + '",-' + Stage2_line[2] + ',-' + Stage2_line[3] + '\n'
                 lineb = 'lsph 32, ":a;st\\st' + Stage2_line[4] + '",160,80\n'
                 linec = 'lsph 31, ":a;st\\st' + Stage2_line[6] + '",320,80\n'
                 lined = 'vsp 39,1\nvsp 32,1\nvsp 31,1\nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
-                print(line)
+                #print(line)
                 
 
             elif Stage3_line:
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage3_line[1] + '",' + Stage3_line[2] + ',' + Stage3_line[3]  + '\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage3_line[1] + '",-' + Stage3_line[2] + ',-' + Stage3_line[3]  + '\n'
                 lineb = 'lsph 31, ":a;st\\st' + Stage3_line[4] + '",240,80\n'
                 linec = 'vsp 39,1\nvsp 31,1\nprint 10,300\n'
 
@@ -138,23 +142,23 @@ for snr_path in pathlist:
                 
 
             elif Stage4_line:
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage4_line[1] + '",' + Stage4_line[2] + ',' + Stage4_line[3] + '\nprint 10,300\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage4_line[1] + '",-' + Stage4_line[2] + ',-' + Stage4_line[3] + '\n'
                 lineb = 'vsp 39,1\nprint 10,300\n'
 
                 line = linea + '\n' + lineb + '\n'
                 
             elif Stage5_line:
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage5_line[1] + '",' + Stage5_line[2] + ',' + Stage5_line[3] + '\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage5_line[1] + '",-' + Stage5_line[2] + ',-' + Stage5_line[3] + '\n'
                 lineb = 'lsph 38, ":a;bg\\' + Stage5_line[4] + '",0,0\n'
-                linec = 'lsph 31, ":a;st\\st' + Stage5_line[5] + '",240,80 \n'
+                linec = 'lsph 31, ":a;st\\st' + Stage5_line[5] + '",240,80\n'
                 lined = 'vsp 39,1\nvsp 38,1\nvsp 31,1\nprint 10,300\n'
                 line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
                 
 
             elif Stage6_line:
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage6_line[4] + '",' + Stage6_line[5] + ',' + Stage6_line[6] +  '\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage6_line[4] + '",-' + Stage6_line[5] + ',-' + Stage6_line[6] +  '\n'
                 lineb = 'lsph 38, ":a;bg\\' + Stage6_line[7] + '",0,0\n'
                 linec = 'lsph 31, ":a;st\\st' + Stage6_line[1] + '",240,80 \n'
                 lined = 'vsp 39,1\nvsp 38,1\nvsp 31,1\nprint 10,300\n'
@@ -164,7 +168,7 @@ for snr_path in pathlist:
 
             elif Stage7_line:
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage7_line[1] + '",240,80 \n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage7_line[1] + '",0,0\n'
                 lineb = 'lsph 38, ":a;bg\\' + Stage7_line[2] + '",' + Stage7_line[3] + ',' + Stage7_line[4] +  '\n'
                 lined = 'vsp 39,1\nvsp 32,1\nprint 10,300\n'
 
@@ -173,8 +177,8 @@ for snr_path in pathlist:
 
             elif Stage8_line:
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage8_line[1] + '",' + Stage8_line[2] + ',' + Stage8_line[3] +  '\n'
-                lineb = 'lsph 38, ":a;bg\\' + Stage8_line[4] + '",' + Stage8_line[5] + ',' + Stage8_line[6] +  '\n'
+                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage8_line[1] + '",-' + Stage8_line[2] + ',-' + Stage8_line[3] +  '\n'
+                lineb = 'lsph 38, ":a;bg\\' + Stage8_line[4] + '",-' + Stage8_line[5] + ',-' + Stage8_line[6] +  '\n'
                 linec = 'lsph 37, ":a;bg\\' + Stage8_line[7] + '",0,0\nprint 10,300\n'
                 lined = 'vsp 39,1\nvsp 38,1\nvsp 37,1\nprint 10,300'
 
@@ -263,6 +267,7 @@ for snr_path in pathlist:
 
             elif Shake_line:
                 #未作成・dafault.txtで処理する書き方にする予定
+                #7/12訂正　このままで大丈夫そう
                 line = 'quake ' + Shake_line[2] + ',' + Shake_line[3] + '\n'
                 
             elif re.match(r'\.wait [0-9]',line):
@@ -308,7 +313,31 @@ for snr_path in pathlist:
 
             elif movie_line:
 
-                line = 'movie "mov\\' + movie_line[2] + '.mpg",click\nprint10,300\n'
+                line = 'movie "mov\\' + movie_line[2] + '.mpg",click\nprint 10,300\n'
+
+            elif if_line1:
+                
+
+                linea = 'notif $' + if_line1[1] + ' > ' + if_line1[2] + '\n'
+                lineb = 'goto *' + if_line1[3] + '\n'
+
+                line = linea + lineb + '\n'
+                print(line)
+
+            elif if_line2:
+
+                linea = 'if $' +if_line2[1] + ' < ' + if_line2[2] + '\n'
+                lineb = 'goto *' + if_line1[3] + '\n'
+
+                line = linea + lineb + '\n'
+
+            elif Jump_line:
+
+                line = 'goto *' + Jump_line[1] + '\n'
+
+            elif mov_line:
+
+                line = 'mov $' + mov_line[1] + ',' + mov_line[2] + '\n' 
 
             else:
                 #if '.stage' in line:
