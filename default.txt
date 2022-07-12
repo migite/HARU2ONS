@@ -3,13 +3,18 @@
 caption "HARU2NS4ONStest"
 nsa
 globalon
-rmenu "セーブ",save,"ロード",load,"リセット",reset
+rmenu "セーブ",save,"ロード",load,"リセット",reset,"スキップ",skip,"ログ",lookback
 pretextgosub *pretext_sb
 
 ;numalias領域
 numalias winmode,100
 numalias A_001,101
-numalias A_002,102
+numalias clearChika,102
+numalias clearNagomi,103
+numalias clearYuduki,104
+numalias clearYuu,105
+numalias favNagomi,106
+numalias favYuduki,107
 
 ;defsub領域
 defsub setwin0
