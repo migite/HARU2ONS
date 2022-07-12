@@ -2,8 +2,16 @@
 *define
 caption "HARU2NS4ONStest"
 nsa
-
 globalon
+rmenu "セーブ",save,"ロード",load,"リセット",reset
+pretextgosub *pretext_sb
+
+;numalias領域
+numalias winmode,100
+numalias A_001,101
+numalias A_002,102
+
+;defsub領域
 defsub setwin0
 defsub setwin1
 defsub setwin2
@@ -25,6 +33,16 @@ game
 
 goto *title
 
+*pretext_sb
+
+gettag $0
+
+lsp 10,":s/24,24,0;#ffffff$0",50,380
+
+print 1
+
+return
+
 *setwin0
 textoff
 return
@@ -39,13 +57,18 @@ textoff
 setwindow3 100,50,24,10,20,20,1,2,10,1,1,":a;sys/fullPanel.png",0,0
 return
 
+*setwin3
+textoff
+setwindow3 100,50,24,10,20,20,1,2,10,1,1,#000000,0,600,600,200
+return
+
 *cspchar
 csp 37
 csp 38
 csp 39
 csp 31
 csp 32
-print 10,300
+print 1
 return
 
 *csptitle
@@ -61,6 +84,7 @@ return
 ;----------追加命令ここまで-------------
 
 *title
+bgm "bgm\bgm_22.ogg"
 lsph 41,":a;sys/mainmenuNewGame.png",570,45
 lsph 42,":a;sys/mainmenuLoadGame.png",570,90
 lsph 43,":a;sys/mainmenuSystem.png",570,135
@@ -75,11 +99,33 @@ vsp 45,1
 vsp 49,1
 print 1
 
-wait 1000
+click
 
+select 
+"はじめから",*startmode,
+"つづきから",*loadmode,
+"おわる",*endmode
+
+end
+
+*startmode
 csptitle
-
+bgmstop
+saveon
 goto *A_001
+end
+
+*loadmode
+csptitle
+saveon
+systemcall load
+bgmstop
+goto *title
+end
+
+*endmode
+csptitle
+bg black,10,300
 end
 
 ;-------------------シナリオここから------------------
