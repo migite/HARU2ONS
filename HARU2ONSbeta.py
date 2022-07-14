@@ -40,6 +40,7 @@ for snr_path in pathlist:
         for line in f:
             #命令が特殊な形は先に分けておきます
             TKT_line =  re.match(r'\.message\s([0-9]+)\t(.*?)\t(.*?)\t(.+)',line)
+            Stage_st_line =re.match(r'\.stage\s(\S*)\s(\d*)\s(\S*)\s(\d*)',line)
             Stage_line = re.match(r'\.stage',line)
             BGM_line = re.match(r'\.playBGM',line)
             SE_line = re.match(r'\.playSE (\S*)',line)
@@ -52,8 +53,8 @@ for snr_path in pathlist:
             Select3_line = re.match(r'\.select\s(\S*):(\S*)\s(\S*):(\S*)\s(\S*):(\S*)',line)
             Select2_line = re.match(r'\.select\s(\S+):(\S+)\s(\S+):(\S+)',line)
             movie_line = re.match(r'\.movie\s(\S*)\s(\S*).mpg',line)
-            if_line1 = re.match(r'\.if (\S*) (\S*) < (\S*)',line)
-            if_line2 = re.match(r'\.if (\S*) (\S*) > (\S*)',line)
+            if_line1 = re.match(r'\.if (\S*) (\S*) \\< (\S*)',line)
+            if_line2 = re.match(r'\.if (\S*) (\S*) \\> (\S*)',line)
             Jump_line = re.match(r'\.goto\s(\S*)',line)
             mov_line = re.match(r'\.setGlobal (\S*) = (\S*)',line)
 
@@ -108,18 +109,24 @@ for snr_path in pathlist:
             elif Stage_line:
                 #BGや立ち絵の調節をします。最長一致から並べていきます
 
-                line = re.sub(r'\.stage\s\* |\.stage\s|\:\[(\S*)\,(\S*)\,(\S*)\]ol_(\S*).png|\:ol_(\S*).png|\:\[(\S*)\,(\S*)\,(\S*)\]','',line)
+                line = re.sub(r'\.stage\s\* |\.stage\s|\:\[(\S+)\,(\S+)\,(\S+)\]ol_(\S+).png|\:ol_(\S+).png|\:\[(\S+)\,(\S+)\,(\S+)\]','',line)
                 #print(line)
-                #背景 + 立ち絵最大5人で分類していきます。もしかして4人出るパターン存在しない?
-                Stage1_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
-                Stage2_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
-                Stage3_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
-                Stage4_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
-                Stage5_line = re.match(r'(\S*) (\d*) (\d*) st(\S*)\s(\d*)',line)
+                #背景 + 立ち絵最大5人で分類していきます。なんで4人出るパターン捕捉できない?
+                Stage1_line = re.match(r'(\S+)\s(\d+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d*)',line)
+                Stage2_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)\sst(\S)\s(\d+)',line)
+                Stage3_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)',line)
+                Stage4_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)',line)
+                Stage5_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)',line)
                 #ここから画面効果を含んだパターンです。画面効果は現在省いています
-                Stage6_line = re.match(r'(\S*) (\S*) (\d*) (\d*) st(\S*) (\d)',line)
-                Stage7_line = re.match(r'(\S*) (\S*) (\d*) (\d*)',line)
-                Stage99_line = re.match(r'(\S*) (\d*) (\d*)',line)
+                Stage6_line = re.match(r'(\S+)\s(\S+)\s(\d+)\s(\d+)\sst(\S+)\s(\d)',line)
+                Stage7_line = re.match(r'(\S+)\s(\S{4,})\s(\d+)\s(\d+)',line)
+                #ここからはst命令という名の背景だったり拡大などです
+                Stage11_line = re.match(r'st(\S+)\s(\S{4,})\s(\d*)\s(\d*)',line)
+                Stage12_line = re.match(r'st(\S+)\s(\d*)\s(\d*)',line)
+                #最後に背景表示のみです
+                Stage99_line = re.match(r'(\S+)\s(\d*)\s(\d*)',line)
+
+                
 
                 if Stage1_line:
                     #print(line)
@@ -141,7 +148,7 @@ for snr_path in pathlist:
                     line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + '\nprint 10,300\n'
                     #print(line)
 
-                elif Select2_line:
+                elif Stage2_line:
                     #print(line)
                     #print('あ')
                     line0 = 'cspchar\n'
@@ -157,7 +164,7 @@ for snr_path in pathlist:
                     line5 = 'lsph 31,":a;st\\st' + Stage2_line[10] + '",' + str(st4_x) + ',80\nvsp 31,1\n'
 
                     line = line0 + line1 + line2 + line3 + line4 +line5 + '\nprint 10,300\n'
-                    print(line)
+                    #print(line)
 
                 elif Stage3_line:
                     #print(line)
@@ -175,7 +182,8 @@ for snr_path in pathlist:
 
                     #print(line)
                 elif Stage4_line:
-
+                    
+                    #print(line)
                     line0 = 'cspchar\n'
                     st1_x = 800 - int(Stage4_line[5])
                     st2_x = 800 - int(Stage4_line[7])
@@ -197,6 +205,23 @@ for snr_path in pathlist:
 
                     line = line0 + line1 + line2 + '\nprint 10,300\n'
 
+                elif Stage11_line:
+                    #print(line)
+                    line0 = 'cspchar\n'
+
+                    line1 = 'lsph 39,":a;bg\\' + Stage11_line[2] + '",-' + Stage11_line[3] + ',-' + Stage11_line[4] + '\nvsp 39,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage11_line[1] + '",0,0\nvsp 33,1\n'
+
+                    line = line0 + line1 + line2 + '\nprint 10,300\n'
+
+                elif Stage12_line:
+                    #print(line)
+                    line0 = 'cspchar\n'
+
+                    line1 = 'lsph 34,":a;st\\st' + Stage12_line[1] + '",0,0\nvsp 33,1\n'
+
+                    line = line0 + line1 + '\nprint 10,300\n'
+
                 elif Stage6_line:
                     line0 = 'cspchar\n'
 
@@ -213,17 +238,20 @@ for snr_path in pathlist:
                     line1 = 'lsph 39,":a;bg\\' + Stage7_line[2] + '",-' + Stage7_line[3] + ',-' + Stage7_line[4] + '\nvsp 39,1\n'
 
                     line =line0 + line1 + '\nprint 10,300\n'
+                    print(line)
+
 
                 elif Stage99_line:
-
+                    #print(line)
                     line0 = 'cspchar\n'
 
                     line1 = 'lsph 39,":a;bg\\' + Stage99_line[1] + '",-' + Stage99_line[2] + ',-' + Stage99_line[3] + '\nvsp 39,1\n'
                     line = line0 + line1 + '\nprint 10,300\n'
+                    #print(line)
 
                 else:
                     line = line
-                    print(line)
+                    #print(line)
 
    
             #背景CG・立ち絵の処理ここまで
