@@ -40,14 +40,7 @@ for snr_path in pathlist:
         for line in f:
             #命令が特殊な形は先に分けておきます
             TKT_line =  re.match(r'\.message\s([0-9]+)\t(.*?)\t(.*?)\t(.+)',line)
-            Stage1_line = re.match(r'\.stage\s\* (\S*) (\S*) (\S*) st(\S*) (\S*) st(\S*)\:(\S*)',line)
-            Stage2_line = re.match(r'\.stage\s\* (\S*) (\S*) (\S*) st(\S*) (\S*) st(\S*) (\S*)',line)
-            Stage3_line = re.match(r'\.stage\s\* (\S*) (\S*) (\S*) st(\S*) (\S*)',line)
-            Stage4_line = re.match(r'\.stage\s\* (\S*) (\S*) (\S*)',line)
-            Stage5_line = re.match(r'\.stage\s(\S*) (\S*) (\S*) (\S*) st(\S*) (\S*)',line)
-            Stage6_line = re.match(r'\.stage\sst(\S*) (\S*) (\S*) (\S*) (\S*) (\S*) (\S*) (\S*)',line)
-            Stage7_line = re.match(r'\.stage\s(\S*) (\S*) (\S*) (\S*)',line)
-            Stage8_line = re.match(r'\.stage\s(\S*) (\d{1}) (\d{1}) (\S*) (\d{1}) (\d{1}) (\S*) (\d{1})',line)
+            Stage_line = re.match(r'\.stage',line)
             BGM_line = re.match(r'\.playBGM',line)
             SE_line = re.match(r'\.playSE (\S*)',line)
             Window_line = re.match(r'\.panel\s([0-9]+)([\s]*)([0-9]*)',line)
@@ -72,6 +65,8 @@ for snr_path in pathlist:
                 NoNameKigo = re.sub(r'@|#','',TKT_line[3])
                 NorubyTXT = re.sub(r'\{\S*}|\\n|\\N','',TKT_line[4])
 
+                if TKT_line[1] == '0':
+                    line = '\n'
 
                 #print(Screen_line)
                 if  Screen_line == 0:
@@ -97,6 +92,7 @@ for snr_path in pathlist:
                 lineb = '[' + NoNameKigo +  ']' + NorubyTXT + Enter_line
 
                 if VoicePath == '':
+
                     line = lineb
 
                 else:
@@ -109,81 +105,127 @@ for snr_path in pathlist:
                 #if '#' in line:
                     #print(line)
 
-            elif Stage1_line:
+            elif Stage_line:
                 #BGや立ち絵の調節をします。最長一致から並べていきます
 
-                linea = 'cspchar \nlsph 39, ":a;bg\\' + Stage1_line[1] + '",-' + Stage1_line[2] + ',-' + Stage1_line[3] + '\n'
-                lineb = 'lsph 32, ":a;st\\st' + Stage1_line[4] + '",160,80\n'
-                linec = 'lsph 31, ":a;st\\st' + Stage1_line[6] + '",320,80 \n'
-                lined = 'vsp 39,1\nvsp 32,1\nvsp 31,1\nprint 10,300\n'
-
-                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined +'\n'
-                
-                
-
-            elif Stage2_line:
-
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage2_line[1] + '",-' + Stage2_line[2] + ',-' + Stage2_line[3] + '\n'
-                lineb = 'lsph 32, ":a;st\\st' + Stage2_line[4] + '",160,80\n'
-                linec = 'lsph 31, ":a;st\\st' + Stage2_line[6] + '",320,80\n'
-                lined = 'vsp 39,1\nvsp 32,1\nvsp 31,1\nprint 10,300\n'
-
-                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
+                line = re.sub(r'\.stage\s\* |\.stage\s|\:\[(\S*)\,(\S*)\,(\S*)\]ol_(\S*).png|\:ol_(\S*).png|\:\[(\S*)\,(\S*)\,(\S*)\]','',line)
                 #print(line)
-                
+                #背景 + 立ち絵最大5人で分類していきます。もしかして4人出るパターン存在しない?
+                Stage1_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
+                Stage2_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
+                Stage3_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
+                Stage4_line = re.match(r'(\S*) (\d*) (\d*) st(\S*) (\d*) st(\S*) (\d*)',line)
+                Stage5_line = re.match(r'(\S*) (\d*) (\d*) st(\S*)\s(\d*)',line)
+                #ここから画面効果を含んだパターンです。画面効果は現在省いています
+                Stage6_line = re.match(r'(\S*) (\S*) (\d*) (\d*) st(\S*) (\d)',line)
+                Stage7_line = re.match(r'(\S*) (\S*) (\d*) (\d*)',line)
+                Stage99_line = re.match(r'(\S*) (\d*) (\d*)',line)
 
-            elif Stage3_line:
+                if Stage1_line:
+                    #print(line)
+                    #最長一致。背景画像+立ち絵5人
+                    line0 = 'cspchar\n'
+                    st1_x = 800 - int(Stage1_line[5])
+                    st2_x = 800 - int(Stage1_line[7])
+                    st3_x = 800 - int(Stage1_line[9])
+                    st4_x = 800 - int(Stage1_line[11])
+                    st5_x = 800 - int(Stage1_line[13])
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage3_line[1] + '",-' + Stage3_line[2] + ',-' + Stage3_line[3]  + '\n'
-                lineb = 'lsph 31, ":a;st\\st' + Stage3_line[4] + '",240,80\n'
-                linec = 'vsp 39,1\nvsp 31,1\nprint 10,300\n'
+                    line1 = 'lsph 39,":a;bg\\' + Stage1_line[1] + '",-' + Stage1_line[2] + ',-' + Stage1_line[3] + '\nvsp 39,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage1_line[4] + '",' + str(st1_x) + ',80\nvsp 34,1\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage1_line[6] + '",' + str(st2_x) + ',80\nvsp 33,1\n'
+                    line4 = 'lsph 32,":a;st\\st' + Stage1_line[8] + '",' + str(st3_x) + ',80\nvsp 32,1\n'
+                    line5 = 'lsph 31,":a;st\\st' + Stage1_line[10] + '",' + str(st4_x) + ',80\nvsp 31,1\n'
+                    line6 = 'lsph 30,":a;st\\st' + Stage1_line[12] + '",' + str(st5_x) + ',80\nvsp 30,1\n'
 
-                line = linea + '\n' + lineb + '\n' + linec +'\n'
-                
+                    line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + '\nprint 10,300\n'
+                    #print(line)
 
-            elif Stage4_line:
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage4_line[1] + '",-' + Stage4_line[2] + ',-' + Stage4_line[3] + '\n'
-                lineb = 'vsp 39,1\nprint 10,300\n'
+                elif Select2_line:
+                    #print(line)
+                    #print('あ')
+                    line0 = 'cspchar\n'
+                    st1_x = 800 - int(Stage2_line[5])
+                    st2_x = 800 - int(Stage2_line[7])
+                    st3_x = 800 - int(Stage2_line[9])
+                    st4_x = 800 - int(Stage2_line[11])
 
-                line = linea + '\n' + lineb + '\n'
-                
-            elif Stage5_line:
+                    line1 = 'lsph 39,":a;bg\\' + Stage2_line[1] + '",-' + Stage2_line[2] + ',-' + Stage2_line[3] + '\nvsp 39,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage2_line[4] + '",' + str(st1_x) + ',80\nvsp 34,1\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage2_line[6] + '",' + str(st2_x) + ',80\nvsp 33,1\n'
+                    line4 = 'lsph 32,":a;st\\st' + Stage2_line[8] + '",' + str(st3_x) + ',80\nvsp 32,1\n'
+                    line5 = 'lsph 31,":a;st\\st' + Stage2_line[10] + '",' + str(st4_x) + ',80\nvsp 31,1\n'
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage5_line[1] + '",-' + Stage5_line[2] + ',-' + Stage5_line[3] + '\n'
-                lineb = 'lsph 38, ":a;bg\\' + Stage5_line[4] + '",0,0\n'
-                linec = 'lsph 31, ":a;st\\st' + Stage5_line[5] + '",240,80\n'
-                lined = 'vsp 39,1\nvsp 38,1\nvsp 31,1\nprint 10,300\n'
-                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
-                
+                    line = line0 + line1 + line2 + line3 + line4 +line5 + '\nprint 10,300\n'
+                    print(line)
 
-            elif Stage6_line:
+                elif Stage3_line:
+                    #print(line)
+                    line0 = 'cspchar\n'
+                    st1_x = 800 - int(Stage3_line[5])
+                    st2_x = 800 - int(Stage3_line[7])
+                    st3_x = 800 - int(Stage3_line[9])
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage6_line[4] + '",-' + Stage6_line[5] + ',-' + Stage6_line[6] +  '\n'
-                lineb = 'lsph 38, ":a;bg\\' + Stage6_line[7] + '",0,0\n'
-                linec = 'lsph 31, ":a;st\\st' + Stage6_line[1] + '",240,80 \n'
-                lined = 'vsp 39,1\nvsp 38,1\nvsp 31,1\nprint 10,300\n'
+                    line1 = 'lsph 39,":a;bg\\' + Stage3_line[1] + '",-' + Stage3_line[2] + ',-' + Stage3_line[3] + '\nvsp 39,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage3_line[4] + '",' + str(st1_x) + ',80\nvsp 34,1\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage3_line[6] + '",' + str(st2_x) + ',80\nvsp 33,1\n'
+                    line4 = 'lsph 32,":a;st\\st' + Stage3_line[8] + '",' + str(st3_x) + ',80\nvsp 32,1\n'
 
-                line = linea + '\n' + lineb + '\n' + linec + lined + '\n'
-                
+                    line = line0 + line1 + line2 + line3 + line4 + '\nprint 10,300\n'
 
-            elif Stage7_line:
+                    #print(line)
+                elif Stage4_line:
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage7_line[1] + '",0,0\n'
-                lineb = 'lsph 38, ":a;bg\\' + Stage7_line[2] + '",' + Stage7_line[3] + ',' + Stage7_line[4] +  '\n'
-                lined = 'vsp 39,1\nvsp 32,1\nprint 10,300\n'
+                    line0 = 'cspchar\n'
+                    st1_x = 800 - int(Stage4_line[5])
+                    st2_x = 800 - int(Stage4_line[7])
 
-                line = linea + '\n' + lineb + '\n'
-                
+                    line1 = 'lsph 39,":a;bg\\' + Stage4_line[1] + '",-' + Stage4_line[2] + ',-' + Stage4_line[3] + '\nvsp 39,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage4_line[4] + '",' + str(st1_x) + ',80\nvsp 34,1\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage4_line[6] + '",' + str(st2_x) + ',80\nvsp 33,1\n'
 
-            elif Stage8_line:
+                    line = line0 + line1 + line2 + line3 + '\nprint 10,300\n'
+                    #print(line)
 
-                linea = 'cspchar\nlsph 39, ":a;bg\\' + Stage8_line[1] + '",-' + Stage8_line[2] + ',-' + Stage8_line[3] +  '\n'
-                lineb = 'lsph 38, ":a;bg\\' + Stage8_line[4] + '",-' + Stage8_line[5] + ',-' + Stage8_line[6] +  '\n'
-                linec = 'lsph 37, ":a;bg\\' + Stage8_line[7] + '",0,0\nprint 10,300\n'
-                lined = 'vsp 39,1\nvsp 38,1\nvsp 37,1\nprint 10,300'
+                elif Stage5_line:
+                    line0 = 'cspchar\n'
 
-                line = linea + '\n' + lineb + '\n' + linec + '\n' + lined + '\n'
-                
+                    st1_x = 800 - int(Stage5_line[5])
+
+                    line1 = 'lsph 39,":a;bg\\' + Stage5_line[1] + '",-' + Stage5_line[2] + ',-' + Stage5_line[3] + '\nvsp 39,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage5_line[4] + '",' + str(st1_x) + ',80\nvsp 34,1\n'
+
+                    line = line0 + line1 + line2 + '\nprint 10,300\n'
+
+                elif Stage6_line:
+                    line0 = 'cspchar\n'
+
+                    st1_x = 800 - int(Stage6_line[6])
+
+                    line1 = 'lsph 39,":a;bg\\' + Stage6_line[2] + '",-' + Stage6_line[3] + ',-' + Stage6_line[4] + '\nvsp 39,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage6_line[5] + '",' + str(st1_x) + ',80\nvsp 34,1\n'
+
+                    line = line1 + '\nprint 10,300\n'
+
+                elif Stage7_line:
+                    line0 = 'cspchar\n'
+
+                    line1 = 'lsph 39,":a;bg\\' + Stage7_line[2] + '",-' + Stage7_line[3] + ',-' + Stage7_line[4] + '\nvsp 39,1\n'
+
+                    line =line0 + line1 + '\nprint 10,300\n'
+
+                elif Stage99_line:
+
+                    line0 = 'cspchar\n'
+
+                    line1 = 'lsph 39,":a;bg\\' + Stage99_line[1] + '",-' + Stage99_line[2] + ',-' + Stage99_line[3] + '\nvsp 39,1\n'
+                    line = line0 + line1 + '\nprint 10,300\n'
+
+                else:
+                    line = line
+                    print(line)
+
+   
             #背景CG・立ち絵の処理ここまで
 
             elif BGM_line:
@@ -197,7 +239,7 @@ for snr_path in pathlist:
                 else:
                     #BGM再生命令にファイルを指定していないときは一括でストップを掛けます
                     #本来は [playBGM *]のように[*]を使いますが、例外も含めストップさせておきます
-                    line = 'bgmstop \n'
+                    line = 'bgmstop\n'
 
             elif SE_line:
 
@@ -220,6 +262,7 @@ for snr_path in pathlist:
                 if '0' in Window_line[1]:
 
                     line = 'setwin0\n'
+                    Screen_line = 5
                     #print(line)
 
                 elif '1' in Window_line[1]:
