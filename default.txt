@@ -26,8 +26,8 @@ defsub csptitle
 game
 ;スプライト番号一覧
 ;
-;31~32　立ち絵
-;37,38　演出背景
+;31~34　立ち絵
+;37,38　演出背景(現在廃止中)
 ;39　標準背景
 ;41~45　タイトル画面ボタン
 ;49　タイトル背景
@@ -42,10 +42,8 @@ goto *title
 
 gettag $0
 
-lsp 10,":s/24,24,0;#ffffff$0",50,380
-
+lsp 10,":s/24,24,0;#ffffff$0",50,417
 print 1
-
 return
 
 *setwin0
@@ -71,8 +69,11 @@ return
 csp 37
 csp 38
 csp 39
+csp 30
 csp 31
 csp 32
+csp 33
+csp 34
 print 1
 return
 
