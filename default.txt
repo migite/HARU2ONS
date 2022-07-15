@@ -41,6 +41,7 @@ game
 goto *title
 
 *pretext_sb
+saveoff
 
 gettag $0
 if %winmode == 1:lsp 10,":s/24,24,0;#ffffff$0",55,425
@@ -49,6 +50,7 @@ if %winmode == 1:lsp 11,"sys\namePanel.png",0,417
 if %winmode == 2:lsp 10,":s/24,24,0;#ffffff$0",55,50
 
 print 1
+saveon
 return
 
 *setwin0
