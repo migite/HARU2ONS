@@ -2,6 +2,7 @@ import glob
 import sys
 import os
 import re
+from tkinter import E
 import chardet
 #from PIL import Image
 
@@ -32,7 +33,8 @@ for snr_path in pathlist:
         char_code =chardet.detect(f.read())['encoding']
 
     with open(snr_path, encoding=char_code, errors='ignore') as f:
-        txt += '\n;--------------- '+ os.path.splitext(os.path.basename(snr_path))[0] +' ---------------\nend\n\n'
+        
+        txt += 'goto *title\n;--------------- '+ os.path.splitext(os.path.basename(snr_path))[0] +' ---------------\nend\n*' + os.path.splitext(os.path.basename(snr_path))[0] + '\n'
         txt = txt.replace('//', ';;;')
 
         #print(txt)
@@ -47,16 +49,18 @@ for snr_path in pathlist:
             Window_line = re.match(r'\.panel\s([0-9]+)([\s]*)([0-9]*)',line)
             Label_line = re.match(r'\.label (\S*)',line)
             Chain_line = re.match(r'\.chain (\S*).sc',line)
-            Include_line = re.match(r'\.include (\S*).sc',line)
+            Include_line = re.match(r'\.include\s(\S*).sc',line)
             Shake_line = re.match(r'\.shakeScreen\t([A-Z]+)\t([0-9]+)\t([0-9]+)',line)
             Wait_line = re.match(r'\.wait (\d+)',line)
-            File_line = re.match(r'\; ファイル: (\S*).txt',line)
             Select3_line = re.match(r'\.select\s(\S*):(\S*)\s(\S*):(\S*)\s(\S*):(\S*)',line)
             Select2_line = re.match(r'\.select\s(\S+):(\S+)\s(\S+):(\S+)',line)
             movie_line = re.match(r'\.movie\s(\S*)\s(\S*).mpg',line)
             if_line = re.match(r'\.if (\S*) (\S*) (\d*) (\S*)',line)
             Jump_line = re.match(r'\.goto\s(\S*)',line)
-            mov_line = re.match(r'\.setGlobal (\S*) = (\S*)',line)
+            mov_line = re.match(r'\.setGlobal\s(\S*) = (\S*)',line)
+            trancelate_line = re.match(r'\.transition (\d*) (\S*) (\d*)',line)
+            erojump_line = re.match(r'#include\s(\S*).sc',line)
+            eroreturn_line = re.match(r';■エロシーンここまで',line)
 
 
             if TKT_line:
@@ -64,7 +68,7 @@ for snr_path in pathlist:
                 Messege_line = TKT_line[1]
                 VoicePath = TKT_line[2]
                 NoNameKigo = re.sub(r'@|#','',TKT_line[3])
-                NorubyTXT = re.sub(r'\{\S*}|\\n|\\N','',TKT_line[4])
+                NorubyTXT = re.sub(r'\{\S*}|\\n|\\N|\\a|\\w','',TKT_line[4])
 
                 #print(Screen_line)
                 if  Screen_line == 0:
@@ -85,18 +89,12 @@ for snr_path in pathlist:
 
                     Enter_line = '\\\n'
 
-            
-                linea = 'dwave 0, "voice\\' + VoicePath + '.ogg"\n'
-                lineb = '[' + NoNameKigo +  ']' + NorubyTXT + Enter_line
+                linea = 'dwave 0,"voice\\' + VoicePath + '.ogg"\n'
+                lineb = '[' + NoNameKigo + ']' + NorubyTXT + Enter_line
 
                 if VoicePath == '':
-
                     line = lineb
-
-                elif TKT_line[1] == '0':
-
-                    line = ';' + line
-
+                
                 else:
                     line = linea + lineb
 
@@ -211,7 +209,7 @@ for snr_path in pathlist:
                     line0 = 'cspchar\n'
 
                     line1 = 'lsph 39,":a;bg\\' + Stage11_line[2] + '",-' + Stage11_line[3] + ',-' + Stage11_line[4] + ':vsp 39,1\n'
-                    line2 = 'lsph 34,":a;st\\st' + Stage11_line[1] + '",0,0:vsp 33,1\n'
+                    line2 = 'lsph 34,":a;bg\\st' + Stage11_line[1] + '",0,0:vsp 34,1\n'
 
                     line = line0 + line1 + line2 + '\nprint 10,300\n'
 
@@ -219,7 +217,7 @@ for snr_path in pathlist:
                     #print(line)
                     line0 = 'cspchar\n'
 
-                    line1 = 'lsph 34,":a;st\\st' + Stage12_line[1] + '",0,0:vsp 33,1\n'
+                    line1 = 'lsph 34,":a;st\\st' + Stage12_line[1] + '",0,0:vsp 34,1\n'
 
                     line = line0 + line1 + '\nprint 10,300\n'
 
@@ -308,7 +306,7 @@ for snr_path in pathlist:
 
                 elif '3' in Window_line[1]:
                     #print(line)
-                    line = 'setwin3\n'
+                    line = 'setwin1\n'
                     Screen_line = 0
 
                 else:
@@ -336,6 +334,7 @@ for snr_path in pathlist:
                     
 
             elif Include_line:
+                #print(line)
                 line = '*' + Include_line[1] + '\n'
 
             elif Shake_line:
@@ -353,10 +352,6 @@ for snr_path in pathlist:
 
                 line = 'goto *' + Chain_line[1] + '\nend\n'
                 #print(line)
-
-            elif File_line:
-                #シナリオファイル間の橋渡し用。コードとして危険ではある。
-                line = '*' + File_line[1] + '\n'
 
             elif Select3_line:
 
@@ -391,7 +386,7 @@ for snr_path in pathlist:
 
             elif if_line:
 
-                line = 'if ' + if_line[1] + ' ' + if_line[2] + ' ' + if_line[3] + ':goto *' + if_line[4] + '\n'
+                line = 'if %' + if_line[1] + ' ' + if_line[2] + ' ' + if_line[3] + ':goto *' + if_line[4] + '\n'
 
             elif Jump_line:
 
@@ -399,14 +394,27 @@ for snr_path in pathlist:
 
             elif mov_line:
 
-                line = 'mov $' + mov_line[1] + ',' + mov_line[2] + '\n' 
+                line = 'mov %' + mov_line[1] + ',' + mov_line[2] + '\n' 
+
+            elif trancelate_line:
+                
+                line = 'delay ' + trancelate_line[3] + '\n'
+
+            elif erojump_line:
+                #print(line)
+
+                line = 'gosub *'  + erojump_line[1] + '\n'
+
+            elif eroreturn_line:
+                #print(line)
+                line = 'return\nend\n'
 
             else:
-                #if '.stage' in line:
+                #if 'include' in line:
                     #print(line)
                 
                 line = ';' + line + '\n'
-            line = line.replace('[]　\\','')
+            line = line.replace('[]　\\','click')
                 
         
 
