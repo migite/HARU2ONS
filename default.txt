@@ -7,6 +7,7 @@ rmenu "セーブ",save,"ロード",load,"リセット",reset,"スキップ",skip,"ログ",lookba
 pretextgosub *pretext_sb
 
 ;numalias領域
+
 numalias winmode,100
 numalias A_001,101
 numalias clearChika,102
@@ -16,6 +17,24 @@ numalias clearYuu,105
 numalias favNagomi,106
 numalias favYuduki,107
 numalias favYuu,108
+numalias B_004,109
+numalias B_008,110
+numalias B_011,111
+numalias B_015,112
+numalias C_007,113
+numalias C_012,114
+numalias C_015,115
+numalias C_017,116
+numalias D_004,117
+numalias D_006,118
+numalias D_007,119
+numalias D_009,120
+numalias D_013,121
+numalias D_015,122
+numalias E_007,123
+numalias E_008,124
+
+
 
 ;defsub領域
 defsub setwin0
@@ -44,14 +63,17 @@ goto *title
 saveoff
 
 gettag $0
-if %winmode == 1:lsp 10,":s/24,24,0;#ffffff$0",55,425
+
+if %winmode == 1:lsp 10,":s/24,24,0;#ffffff$1",55,425
 if %winmode == 1:lsp 11,"sys\namePanel.png",0,417
 
-if %winmode == 2:lsp 10,":s/24,24,0;#ffffff$0",55,50
+if %winmode == 2:lsp 10,":s/24,24,0;#ffffff$1",55,50
 
 print 1
+
 saveon
 return
+
 
 *setwin0
 textoff
@@ -147,25 +169,60 @@ end
 *loadmode
 csptitle
 saveon
+lsph 49,":a;sys/saveloadBase.png",0,0:vsp 49,1
+print 1
 systemcall load
 bgmstop
 goto *title
 end
 
 *settingmode
+csptitle
+lsph 49,":a;sys/configBase.png",0,0:vsp 49,1
+print 1
 setwin1
-そんなものはない@
+bgmstop
+select
+"音量設定　マスター１００",*Onryo100,
+"音量設定　マスター５０",*Onryo50,
+"音量設定　マスター０",*Onryo0
+
+*Onryo100
+bgmvol 100
+voicevol 100
+sevol 100
 setwin0
+csptitle
+goto *title
+
+*Onryo50
+bgmvol 50
+voicevol 50
+sevol 50
+setwin0
+csptitle
+goto *title
+
+*Onryo0
+bgmvol 0
+voicevol 0
+sevol 0
+setwin0
+csptitle
+goto *title
+
 goto *title
 end
 
+*Onryoconfig
+
+return
+
 *memory
-setwin2
-な
-い
-で
-す@
-setwin0
+lsph 49,"sys\exmPrologue.png",0,0:vsp 49,1
+print 1
+wait 2000
+csptitle
 goto *title
 end
 
