@@ -5,9 +5,25 @@ nsa
 globalon
 rmenu "セーブ",save,"ロード",load,"リセット",reset,"スキップ",skip,"ログ",lookback
 pretextgosub *pretext_sb
+windowback
+humanz 30
 
 ;numalias領域
-
+numalias st_x1,51
+numalias st_y1,52
+numalias st_x2,53
+numalias st_y2,54
+numalias st_x3,55
+numalias st_y3,57
+numalias st_x4,58
+numalias st_y4,59
+numalias st_x5,60
+numalias st_y5,61
+numalias x1_default,62
+numalias x2_default,63
+numalias x3_default,64
+numalias x4_default,65
+numalias x5_default,66
 numalias winmode,100
 numalias A_001,101
 numalias clearChika,102
@@ -33,7 +49,7 @@ numalias D_013,121
 numalias D_015,122
 numalias E_007,123
 numalias E_008,124
-
+numalias route,125
 
 
 ;defsub領域
@@ -43,6 +59,7 @@ defsub setwin2
 defsub setwin3
 defsub cspchar
 defsub csptitle
+defsub stposition
 
 game
 ;スプライト番号一覧
@@ -64,10 +81,12 @@ saveoff
 
 gettag $0
 
-if %winmode == 1:lsp 10,":s/24,24,0;#ffffff$1",55,425
-if %winmode == 1:lsp 11,"sys\namePanel.png",0,417
+if %winmode == 0 csp 11
 
-if %winmode == 2:lsp 10,":s/24,24,0;#ffffff$1",55,50
+if %winmode == 1 lsp 10,":s/24,24,0;#ffffff$0",55,430
+if %winmode == 1 lsp 11,"sys\namePanel.png",0,417,128
+
+if %winmode == 2 lsp 10,":s/24,24,0;#ffffff$1",55,50
 
 print 1
 
@@ -119,6 +138,77 @@ csp 44
 csp 45
 csp 49
 print 10,300
+return
+
+*stposition
+getspsize 34,%st_x1,%st_y1
+getspsize 33,%st_x2,%st_y2
+getspsize 32,%st_x3,%st_y3
+getspsize 31,%st_x4,%st_y4
+getspsize 30,%st_x5,%st_y5
+
+div %st_x1,2
+add %st_x1,%x1_default
+sub %st_x1,800
+sub %st_y1,600
+mov %st_x1,-%st_x1
+mov %st_y1,-%st_y1
+
+amsp 34,%st_x1,%st_y1
+vsp 34,1
+
+if %st_x2 == 0 print 1
+if %st_x2 == 0 return
+
+div %st_x2,2
+add %st_x2,%x2_default
+sub %st_x2,800
+sub %st_y2,600
+mov %st_x2,-%st_x2
+mov %st_y2,-%st_y2
+
+amsp 33,%st_x2,%st_y2
+vsp 33,1
+
+if %st_x3 == 0 print 1
+if %st_x3 == 0 return 
+
+div,%st_x3,2
+add %st_x3,%x3_default
+sub %st_x3,800
+sub %st_y3,600
+mov %st_x3,-%st_x3
+mov %st_y3,-%st_y3
+
+amsp 32,%st_x3,%st_y3
+vsp 32,1
+
+if %st_x4 == 0 print 1
+if %st_x4 == 0 return
+
+div %st_x4,2
+add %st_x4,%x4_default
+sub %st_x4,800
+sub %st_y4,600
+mov %st_x4,-%st_x4
+mov %st_y4,-%st_y4
+
+amsp 31,%st_x4,%st_y4
+vsp 31,1
+
+if %st_x5 == 0 print 1
+if %st_x5 == 0 return
+
+div %st_x5,2
+add %st_x5,%x5_default
+sub %st_x5,800
+sub %st_y5,600
+mov %st_x5,-%st_x5
+mov %st_y5,-%st_y5
+
+amsp 30,%st_x5,%st_y5
+vsp 30,1
+
 return
 
 ;----------追加命令ここまで-------------
