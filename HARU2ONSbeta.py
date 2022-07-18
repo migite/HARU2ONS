@@ -27,6 +27,8 @@ Messege_line = 0
 Messege_before = 0
 Labelcount = 0
 
+print('コンバートを開始します…')
+
 for snr_path in pathlist:
 
     with open(snr_path, 'rb') as f:
@@ -34,7 +36,7 @@ for snr_path in pathlist:
 
     with open(snr_path, encoding=char_code, errors='ignore') as f:
         
-        txt += 'goto *title\n;--------------- '+ os.path.splitext(os.path.basename(snr_path))[0] +' ---------------\nend\n*' + os.path.splitext(os.path.basename(snr_path))[0] + '\n'
+        txt += 'cspchar\ngoto *title\n;--------------- '+ os.path.splitext(os.path.basename(snr_path))[0] +' ---------------\nend\n*' + os.path.splitext(os.path.basename(snr_path))[0] + '\n'
         txt = txt.replace('//', ';;;')
 
         #print(txt)
@@ -58,6 +60,7 @@ for snr_path in pathlist:
             if_line = re.match(r'\.if (\S*) (\S*) (\d*) (\S*)',line)
             Jump_line = re.match(r'\.goto\s(\S*)',line)
             mov_line = re.match(r'\.setGlobal\s(\S*) = (\S*)',line)
+            add_line = re.match(r'\.set (\S*) =',line)
             trancelate_line = re.match(r'\.transition (\d*) (\S*) (\d*)',line)
             erojump_line = re.match(r'#include\s(\S*).sc',line)
             eroreturn_line = re.match(r';■エロシーンここまで',line)
@@ -138,18 +141,24 @@ for snr_path in pathlist:
                     st5_x = 800 - int(Stage1_line[13])
 
                     line1 = 'lsph 39,":a;bg\\' + Stage1_line[1] + '",-' + Stage1_line[2] + ',-' + Stage1_line[3] + ':vsp 39,1\n'
-                    line2 = 'lsph 34,":a;st\\st' + Stage1_line[4] + '",' + str(st1_x) + ',:vsp 34,1\n'
-                    line3 = 'lsph 33,":a;st\\st' + Stage1_line[6] + '",' + str(st2_x) + ',80:vsp 33,1\n'
-                    line4 = 'lsph 32,":a;st\\st' + Stage1_line[8] + '",' + str(st3_x) + ',80:vsp 32,1\n'
-                    line5 = 'lsph 31,":a;st\\st' + Stage1_line[10] + '",' + str(st4_x) + ',80:vsp 31,1\n'
-                    line6 = 'lsph 30,":a;st\\st' + Stage1_line[12] + '",' + str(st5_x) + ',80:vsp 30,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage1_line[4] + '",0,0\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage1_line[6] + '",0,0\n'
+                    line4 = 'lsph 32,":a;st\\st' + Stage1_line[8] + '",0,0\n'
+                    line5 = 'lsph 31,":a;st\\st' + Stage1_line[10] + '",0,0\n'
+                    line6 = 'lsph 30,":a;st\\st' + Stage1_line[12] + '",0,0\n'
 
-                    line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + '\nprint 10,300\n'
+                    line7 = 'mov %x1_default,' + str(st1_x) + '\n'
+                    line8 = 'mov %x2_default,' + str(st2_x) + '\n'
+                    line9 = 'mov %x3_default,' + str(st3_x) + '\n'
+                    line10 = 'mov %x4_default,' + str(st4_x) + '\n'
+                    line11 = 'mov %x5_default,' + str(st5_x) + '\n'
+                    line12 = 'stposition\n'
+
+                    line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + line7 + line8 + line9 + line10 + line11 + line12 +'\n'
                     #print(line)
 
                 elif Stage2_line:
-                    #print(line)
-                    #print('あ')
+
                     line0 = 'cspchar\n'
                     st1_x = 800 - int(Stage2_line[5])
                     st2_x = 800 - int(Stage2_line[7])
@@ -157,12 +166,18 @@ for snr_path in pathlist:
                     st4_x = 800 - int(Stage2_line[11])
 
                     line1 = 'lsph 39,":a;bg\\' + Stage2_line[1] + '",-' + Stage2_line[2] + ',-' + Stage2_line[3] + ':vsp 39,1\n'
-                    line2 = 'lsph 34,":a;st\\st' + Stage2_line[4] + '",' + str(st1_x) + ',80:vsp 34,1\n'
-                    line3 = 'lsph 33,":a;st\\st' + Stage2_line[6] + '",' + str(st2_x) + ',80:vsp 33,1\n'
-                    line4 = 'lsph 32,":a;st\\st' + Stage2_line[8] + '",' + str(st3_x) + ',80:vsp 32,1\n'
-                    line5 = 'lsph 31,":a;st\\st' + Stage2_line[10] + '",' + str(st4_x) + ',80:vsp 31,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage2_line[4] + '",0,0\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage2_line[6] + '",0,0\n'
+                    line4 = 'lsph 32,":a;st\\st' + Stage2_line[8] + '",0,0\n'
+                    line5 = 'lsph 31,":a;st\\st' + Stage2_line[10] + '",0,0\n'
 
-                    line = line0 + line1 + line2 + line3 + line4 +line5 + '\nprint 10,300\n'
+                    line6 = 'mov %x1_default,' + str(st1_x) + '\n'
+                    line7 = 'mov %x2_default,' + str(st2_x) + '\n'
+                    line8 = 'mov %x3_default,' + str(st3_x) + '\n'
+                    line9 = 'mov %x4_default,' + str(st4_x) + '\n'
+                    line10 = 'stposition\n'
+
+                    line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + line7 + line8 + line9 + line10 +'\n'
                     #print(line)
 
                 elif Stage3_line:
@@ -173,11 +188,16 @@ for snr_path in pathlist:
                     st3_x = 800 - int(Stage3_line[9])
 
                     line1 = 'lsph 39,":a;bg\\' + Stage3_line[1] + '",-' + Stage3_line[2] + ',-' + Stage3_line[3] + ':vsp 39,1\n'
-                    line2 = 'lsph 34,":a;st\\st' + Stage3_line[4] + '",' + str(st1_x) + ',80:vsp 34,1\n'
-                    line3 = 'lsph 33,":a;st\\st' + Stage3_line[6] + '",' + str(st2_x) + ',80:vsp 33,1\n'
-                    line4 = 'lsph 32,":a;st\\st' + Stage3_line[8] + '",' + str(st3_x) + ',80:vsp 32,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage3_line[4] + '",0,0\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage3_line[6] + '",0,0\n'
+                    line4 = 'lsph 32,":a;st\\st' + Stage3_line[8] + '",0,0\n'
 
-                    line = line0 + line1 + line2 + line3 + line4 + '\nprint 10,300\n'
+                    line5 = 'mov %x1_default,' + str(st1_x) + '\n'
+                    line6 = 'mov %x2_default,' + str(st2_x) + '\n'
+                    line7 = 'mov %x3_default,' + str(st3_x) + '\n'
+                    line8 = 'stposition\n'
+
+                    line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + line7 + line8 +'\n'
 
                     #print(line)
                 elif Stage4_line:
@@ -188,21 +208,25 @@ for snr_path in pathlist:
                     st2_x = 800 - int(Stage4_line[7])
 
                     line1 = 'lsph 39,":a;bg\\' + Stage4_line[1] + '",-' + Stage4_line[2] + ',-' + Stage4_line[3] + ':vsp 39,1\n'
-                    line2 = 'lsph 34,":a;st\\st' + Stage4_line[4] + '",' + str(st1_x) + ',80:vsp 34,1\n'
-                    line3 = 'lsph 33,":a;st\\st' + Stage4_line[6] + '",' + str(st2_x) + ',80:vsp 33,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage4_line[4] + '",0,0\n'
+                    line3 = 'lsph 33,":a;st\\st' + Stage4_line[6] + '",0,0\n'
 
-                    line = line0 + line1 + line2 + line3 + '\nprint 10,300\n'
-                    #print(line)
+                    line4 = 'mov %x1_default,' + str(st1_x) + '\n'
+                    line5 = 'mov %x2_default,' + str(st2_x) + '\n'
+                    line6 = 'stposition\n'
+
+                    line = line0 + line1 + line2 + line3 + line4 +line5 + line6 +'\n'
 
                 elif Stage5_line:
                     line0 = 'cspchar\n'
-
                     st1_x = 800 - int(Stage5_line[5])
 
                     line1 = 'lsph 39,":a;bg\\' + Stage5_line[1] + '",-' + Stage5_line[2] + ',-' + Stage5_line[3] + ':vsp 39,1\n'
-                    line2 = 'lsph 34,":a;st\\st' + Stage5_line[4] + '",' + str(st1_x) + ',80:vsp 34,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage5_line[4] + '",0,0\n'
 
-                    line = line0 + line1 + line2 + '\nprint 10,300\n'
+                    line3 = 'mov %x1_default,' + str(st1_x) + '\n'
+                    line4 = 'stposition\n'
+                    line = line0 + line1 + line2 + line3 + line4 +'\nprint 1\n'
 
                 elif Stage11_line:
                     #print(line)
@@ -211,7 +235,7 @@ for snr_path in pathlist:
                     line1 = 'lsph 39,":a;bg\\' + Stage11_line[2] + '",-' + Stage11_line[3] + ',-' + Stage11_line[4] + ':vsp 39,1\n'
                     line2 = 'lsph 34,":a;bg\\st' + Stage11_line[1] + '",0,0:vsp 34,1\n'
 
-                    line = line0 + line1 + line2 + '\nprint 10,300\n'
+                    line = line0 + line1 + line2 + '\nprint 1\n'
 
                 elif Stage12_line:
                     #print(line)
@@ -219,24 +243,26 @@ for snr_path in pathlist:
 
                     line1 = 'lsph 34,":a;st\\st' + Stage12_line[1] + '",0,0:vsp 34,1\n'
 
-                    line = line0 + line1 + '\nprint 10,300\n'
+                    line = line0 + line1 + '\nprint 1\n'
 
                 elif Stage6_line:
                     line0 = 'cspchar\n'
-
                     st1_x = 800 - int(Stage6_line[6])
 
                     line1 = 'lsph 39,":a;bg\\' + Stage6_line[2] + '",-' + Stage6_line[3] + ',-' + Stage6_line[4] + ':vsp 39,1\n'
-                    line2 = 'lsph 34,":a;st\\st' + Stage6_line[5] + '",' + str(st1_x) + ',80:vsp 34,1\n'
+                    line2 = 'lsph 34,":a;st\\st' + Stage6_line[5] + '",' + str(st1_x) + ',0\n'
 
-                    line = line1 + '\nprint 10,300\n'
+                    line3 = 'mov %x1_default,' + str(st1_x) + '\n'
+                    line4 = 'stposition\n'
+
+                    line = line1 + line2 + line3 + line4 +'\n'
 
                 elif Stage7_line:
                     line0 = 'cspchar\n'
 
                     line1 = 'lsph 39,":a;bg\\' + Stage7_line[2] + '",-' + Stage7_line[3] + ',-' + Stage7_line[4] + ':vsp 39,1\n'
 
-                    line =line0 + line1 + '\nprint 10,300\n'
+                    line =line0 + line1 + '\nprint 1\n'
                     #print(line)
 
 
@@ -245,7 +271,7 @@ for snr_path in pathlist:
                     line0 = 'cspchar\n'
 
                     line1 = 'lsph 39,":a;bg\\' + Stage99_line[1] + '",-' + Stage99_line[2] + ',-' + Stage99_line[3] + ':vsp 39,1\n'
-                    line = line0 + line1 + '\nprint 10,300\n'
+                    line = line0 + line1 + '\nprint 1\n'
                     #print(line)
 
                 else:
@@ -382,7 +408,7 @@ for snr_path in pathlist:
 
             elif movie_line:
 
-                line = 'movie "mov\\' + movie_line[2] + '.mpg",click\nprint 10,300\n'
+                line = 'movie "mov\\' + movie_line[2] + '.mpg",click\nprint 1\n'
 
             elif if_line:
 
@@ -391,6 +417,29 @@ for snr_path in pathlist:
             elif Jump_line:
 
                 line = 'goto *' + Jump_line[1] + '\n'
+
+            elif add_line:
+
+                
+                ADDVAR = re.match(r'\.set (\S*) = (\S*) \+ (\d*)',line)
+                ADD2VAR = re.match(r'\.set (\S*) = (\S*) \+ (\d*)',line)
+                SETVAR = re.match(r'\.set (\S*) = (\d*)',line)
+
+                if ADDVAR:
+                    line = 'add %' +ADDVAR[1] + ',' + ADDVAR[3] + '\n'
+                    print(line)
+
+                elif SETVAR:
+
+                    line = 'mov %' + SETVAR[1] + ',' + SETVAR[2] + '\n' 
+
+                    print(line)
+
+                else:
+
+                    line = ';' + line + '\n'
+
+
 
             elif mov_line:
 
@@ -406,7 +455,7 @@ for snr_path in pathlist:
                 line = 'gosub *'  + erojump_line[1] + '\n'
 
             elif eroreturn_line:
-                #print(line)
+                print('Convert now…')
                 line = 'return\nend\n'
 
             else:
@@ -415,6 +464,10 @@ for snr_path in pathlist:
                 
                 line = ';' + line + '\n'
             line = line.replace('[]　\\','click')
+            line = line.replace('if %clearNagomi < 1:goto *label2','if %clearNagomi < 1:goto *label2_2')
+            line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
+            line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
+            line = line.replace('\\v\\','\\')
                 
         
 
@@ -428,7 +481,7 @@ for snr_path in pathlist:
 
     
 
-print('猫猫柔軟')
+print("処理が完了しました")
 
 open(os.path.join(same_hierarchy,'0.txt'), 'w', errors='ignore').write(txt)
 
