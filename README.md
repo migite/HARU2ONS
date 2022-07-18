@@ -16,6 +16,10 @@ scrフォルダ内のev~.sc,test.scはすべて消去してください。特に
 
 各自展開したら、HARU2ONS.exeを実行してください
 
+・PSP用変換作業
+Prince of Sea氏が制作した
+https://github.com/Prince-of-sea/ONScripter_Multi_Converter
+をご利用ください
 
 ・元のゲームデータは勿論、展開したゲームデータもすべて、minori様の著作物です。個人の範囲でお楽しみください。
 
