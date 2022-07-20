@@ -1,14 +1,16 @@
 ;$V2000G1000S800,600L10000
 *define
-caption "HARU2NS4ONStest"
+caption "HARU2NS4ONSVer0.73"
 nsa
 globalon
-rmenu "ã‚»ãƒ¼ãƒ–",save,"ãƒ­ãƒ¼ãƒ‰",load,"ãƒªã‚»ãƒƒãƒˆ",reset,"ã‚¹ã‚­ãƒƒãƒ—",skip,"ãƒ­ã‚°",lookback
+rmenu "ƒZ[ƒu",save,"ƒ[ƒh",load,"ƒŠƒZƒbƒg",reset,"ƒXƒLƒbƒv",skip,"ƒƒO",lookback,"ƒEƒCƒ“ƒhƒE‚ğÁ‚·",windowerase
 pretextgosub *pretext_sb
 windowback
 humanz 30
+savenumber 15
+automode
 
-;numaliasé ˜åŸŸ
+;numalias—Ìˆæ
 numalias st_x1,51
 numalias st_y1,52
 numalias st_x2,53
@@ -52,7 +54,7 @@ numalias E_008,124
 numalias route,125
 
 
-;defsubé ˜åŸŸ
+;defsub—Ìˆæ
 defsub setwin0
 defsub setwin1
 defsub setwin2
@@ -62,23 +64,21 @@ defsub csptitle
 defsub stposition
 
 game
-;ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆç•ªå·ä¸€è¦§
-;10,11ã€€åå‰è¡¨ç¤º
-;30~34ã€€ç«‹ã¡çµµ
-;37,38ã€€æ¼”å‡ºèƒŒæ™¯(ç¾åœ¨å»ƒæ­¢ä¸­)
-;39ã€€æ¨™æº–èƒŒæ™¯
-;41~45ã€€ã‚¿ã‚¤ãƒˆãƒ«ç”»é¢ãƒœã‚¿ãƒ³
-;49ã€€ã‚¿ã‚¤ãƒˆãƒ«èƒŒæ™¯
+;ƒXƒvƒ‰ƒCƒg”Ô†ˆê——
+;10,11@–¼‘O•\¦
+;30~34@—§‚¿ŠG
+;37,38@‰‰o”wŒi(Œ»İ”p~’†)
+;39@•W€”wŒi
+;41~45@ƒ^ƒCƒgƒ‹‰æ–Êƒ{ƒ^ƒ“
+;49@ƒ^ƒCƒgƒ‹”wŒi
 
-;------------------å®šç¾©åŸŸã“ã“ã¾ã§-------------------
+;------------------’è‹`ˆæ‚±‚±‚Ü‚Å-------------------
 
 *start
 
 goto *title
 
 *pretext_sb
-saveoff
-
 gettag $0
 
 if %winmode == 0 csp 11
@@ -90,7 +90,6 @@ if %winmode == 2 lsp 10,":s/24,24,0;#ffffff$1",55,50
 
 print 1
 
-saveon
 return
 
 
@@ -121,6 +120,7 @@ return
 *cspchar
 csp 37
 csp 38
+csp 39
 csp 30
 csp 31
 csp 32
@@ -210,9 +210,10 @@ vsp 30,1
 
 return
 
-;----------è¿½åŠ å‘½ä»¤ã“ã“ã¾ã§-------------
+;----------’Ç‰Á–½—ß‚±‚±‚Ü‚Å-------------
 
 *title
+rmode 0
 bgm "bgm\bgm_22.ogg"
 lsph 41,":a;sys/mainmenuNewGame.png",570,45
 lsph 42,":a;sys/mainmenuLoadGame.png",570,90
@@ -248,6 +249,7 @@ end
 
 *startmode
 csptitle
+rmode 1
 bgmstop
 saveon
 setwin0
@@ -272,9 +274,9 @@ print 1
 setwin1
 bgmstop
 select
-"éŸ³é‡è¨­å®šã€€ãƒã‚¹ã‚¿ãƒ¼ï¼‘ï¼ï¼",*Onryo100,
-"éŸ³é‡è¨­å®šã€€ãƒã‚¹ã‚¿ãƒ¼ï¼•ï¼",*Onryo50,
-"éŸ³é‡è¨­å®šã€€ãƒã‚¹ã‚¿ãƒ¼ï¼",*Onryo0
+"‰¹—Êİ’è@ƒ}ƒXƒ^[‚P‚O‚O",*Onryo100,
+"‰¹—Êİ’è@ƒ}ƒXƒ^[‚T‚O",*Onryo50,
+"‰¹—Êİ’è@ƒ}ƒXƒ^[‚O",*Onryo0
 
 *Onryo100
 bgmvol 100
@@ -320,5 +322,5 @@ csptitle
 bg black,10,300
 end
 
-;-------------------ã‚·ãƒŠãƒªã‚ªã“ã“ã‹ã‚‰------------------
+;-------------------ƒVƒiƒŠƒI‚±‚±‚©‚ç------------------
 
