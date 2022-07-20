@@ -83,10 +83,10 @@ gettag $0
 
 if %winmode == 0 csp 11
 
-if %winmode == 1 lsp 10,":s/24,24,0;#ffffff$0",55,430
+if %winmode == 1 lsp 10,":s/30,30,0;#ffffff$0",55,430
 if %winmode == 1 lsp 11,"sys\namePanel.png",0,417,128
 
-if %winmode == 2 lsp 10,":s/24,24,0;#ffffff$1",55,50
+;if %winmode == 2 lsp 10,":s/24,24,0;#ffffff$1",55,50
 
 print 1
 
@@ -101,13 +101,13 @@ return
 
 *setwin1
 textoff
-setwindow3 50,480,32,3,20,20,1,2,10,1,1,":a;sys/msgPanel.png",0,417
+setwindow3 50,480,24,4,26,26,1,2,10,1,1,":a;sys/msgPanel.png",0,417
 mov %winmode,1
 return
 
 *setwin2
 textoff
-setwindow3 100,50,24,10,20,20,1,2,10,1,1,":a;sys/fullPanel.png",0,0
+setwindow3 100,50,20,12,26,26,1,2,10,1,1,":a;sys/fullPanel.png",0,0
 mov %winmode,2
 return
 
