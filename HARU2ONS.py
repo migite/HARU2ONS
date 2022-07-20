@@ -2,7 +2,7 @@ import glob
 import sys
 import os
 import re
-from tkinter import E
+
 import chardet
 #from PIL import Image
 
@@ -64,6 +64,9 @@ for snr_path in pathlist:
             trancelate_line = re.match(r'\.transition (\d*) (\S*) (\d*)',line)
             erojump_line = re.match(r'#include\s(\S*).sc',line)
             eroreturn_line = re.match(r';■エロシーンここまで',line)
+            vscroll_line = re.match(r'\.vscroll\s(\d+)\s(\d+)',line)
+            hscroll_line = re.match(r'\.hscroll\s(\d+)\s(\d+)',line)
+
 
 
             if TKT_line:
@@ -408,7 +411,7 @@ for snr_path in pathlist:
 
             elif movie_line:
 
-                line = 'movie "mov\\' + movie_line[2] + '.mpg",click\nprint 1\n'
+                line = 'csp -1\nmovie "mov\\' + movie_line[2] + '.mpg",click\nprint 1\n'
 
             elif if_line:
 
@@ -427,13 +430,13 @@ for snr_path in pathlist:
 
                 if ADDVAR:
                     line = 'add %' +ADDVAR[1] + ',' + ADDVAR[3] + '\n'
-                    print(line)
+                    #print(line)
 
                 elif SETVAR:
 
                     line = 'mov %' + SETVAR[1] + ',' + SETVAR[2] + '\n' 
 
-                    print(line)
+                    #print(line)
 
                 else:
 
@@ -457,6 +460,16 @@ for snr_path in pathlist:
             elif eroreturn_line:
                 print('Convert now…')
                 line = 'return\nend\n'
+
+            elif vscroll_line:
+
+                line = 'delay ' + vscroll_line[1] + '\n'
+
+            elif hscroll_line:
+
+                line = 'delay ' + hscroll_line[1] + '\n'
+
+
 
             else:
                 #if 'include' in line:
