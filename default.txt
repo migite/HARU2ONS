@@ -1,14 +1,13 @@
 ;$V2000G1000S800,600L10000
 *define
-caption "HARU2NS4ONSVer0.73"
+caption "HARU2NS4ONSVer0.75"
 nsa
 globalon
-rmenu "セーブ",save,"ロード",load,"リセット",reset,"スキップ",skip,"ログ",lookback,"ウインドウを消す",windowerase
+rmenu "セーブ",save,"ロード",load,"リセット",reset,"スキップ",skip,"ログ",lookback
 pretextgosub *pretext_sb
 windowback
+savenumber 18
 humanz 30
-savenumber 15
-automode
 
 ;numalias領域
 numalias st_x1,51
@@ -79,6 +78,8 @@ game
 goto *title
 
 *pretext_sb
+saveoff
+
 gettag $0
 
 if %winmode == 0 csp 11
@@ -86,10 +87,11 @@ if %winmode == 0 csp 11
 if %winmode == 1 lsp 10,":s/30,30,0;#ffffff$0",55,430
 if %winmode == 1 lsp 11,"sys\namePanel.png",0,417,128
 
-;if %winmode == 2 lsp 10,":s/24,24,0;#ffffff$1",55,50
+if %winmode == 2 lsp 10,":s/30,30,0;#ffffff$1",55,50
 
 print 1
 
+saveon
 return
 
 
@@ -107,7 +109,7 @@ return
 
 *setwin2
 textoff
-setwindow3 100,50,20,12,26,26,1,2,10,1,1,":a;sys/fullPanel.png",0,0
+setwindow3 100,50,20,10,24,24,1,2,10,1,1,":a;sys/fullPanel.png",0,0
 mov %winmode,2
 return
 
@@ -120,7 +122,6 @@ return
 *cspchar
 csp 37
 csp 38
-csp 39
 csp 30
 csp 31
 csp 32
@@ -213,6 +214,7 @@ return
 ;----------追加命令ここまで-------------
 
 *title
+csp -1
 rmode 0
 bgm "bgm\bgm_22.ogg"
 lsph 41,":a;sys/mainmenuNewGame.png",570,45
