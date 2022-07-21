@@ -411,7 +411,7 @@ for snr_path in pathlist:
 
             elif movie_line:
 
-                line = 'csp -1\nmovie "mov\\' + movie_line[2] + '.mpg",click\nprint 1\n'
+                line = 'csp -1:print 1\nmovie "mov\\' + movie_line[2] + '.mpg",click\nprint 1\n'
 
             elif if_line:
 
