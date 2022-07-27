@@ -10,12 +10,6 @@ same_hierarchy = (os.path.dirname(sys.argv[0]))
 
 scenario_dir = os.path.join(same_hierarchy,'scr')
 
-PSP = bool(os.path.isfile(os.path.join(same_hierarchy,'ONS.INI')) )
-
-bgcg_dir =os.path.join(same_hierarchy,'bg')
-stand_dir =os.path.join(same_hierarchy,'st')
-sys_dir =os.path.join(same_hierarchy,'sys')
-
 with open(os.path.join(same_hierarchy, 'default.txt')) as f:
 	txt = f.read()
 
@@ -476,7 +470,7 @@ for snr_path in pathlist:
                     #print(line)
                 
                 line = ';' + line + '\n'
-            line = line.replace('[]　\\','click')
+            line = line.replace('[]　\\','click\nlookbackflush\n')
             line = line.replace('if %clearNagomi < 1:goto *label2','if %clearNagomi < 1:goto *label2_2')
             line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
             line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
@@ -486,11 +480,6 @@ for snr_path in pathlist:
 
             
             txt += line
-
-#if PSP:
-    #pathlist2 = glob.glob(os.path.join(stand_dir, '*.png'))
-    #pathlist2.extend(glob.glob(os.path.join(bgcg_dir, '*.png')))
-    #pathlist2.extend(glob.glob(os.path.join(sys_dir, '*.png')))
 
     
 
