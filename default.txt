@@ -1,6 +1,6 @@
 ;$V2000G1000S800,600L10000
 *define
-caption "HARU2NS4ONSVer0.75"
+caption "HARU2NS4ONSVer0.80"
 nsa
 globalon
 rmenu "ƒZ[ƒu",save,"ƒ[ƒh",load,"ƒŠƒZƒbƒg",reset,"ƒXƒLƒbƒv",skip,"ƒƒO",lookback
@@ -8,6 +8,9 @@ pretextgosub *pretext_sb
 windowback
 savenumber 18
 humanz 30
+selectvoice "","sys\cursor.wav","sys\click.wav"
+
+mov %TEXT_size,1
 
 ;numalias—Ìˆæ
 numalias st_x1,51
@@ -26,40 +29,43 @@ numalias x3_default,64
 numalias x4_default,65
 numalias x5_default,66
 numalias winmode,100
-numalias A_001,101
-numalias clearChika,102
-numalias clearNagomi,103
-numalias clearYuduki,104
-numalias clearYuu,105
-numalias favNagomi,106
-numalias favYuduki,107
-numalias favYuu,108
-numalias B_004,109
-numalias B_008,110
-numalias B_011,111
-numalias B_015,112
-numalias C_007,113
-numalias C_012,114
-numalias C_015,115
-numalias C_017,116
-numalias D_004,117
-numalias D_006,118
-numalias D_007,119
-numalias D_009,120
-numalias D_013,121
-numalias D_015,122
-numalias E_007,123
-numalias E_008,124
-numalias route,125
-
+numalias A_001,201
+numalias clearChika,202
+numalias clearNagomi,203
+numalias clearYuduki,204
+numalias clearYuu,205
+numalias favNagomi,206
+numalias favYuduki,207
+numalias favYuu,208
+numalias B_004,209
+numalias B_008,210
+numalias B_011,211
+numalias B_015,212
+numalias C_007,213
+numalias C_012,214
+numalias C_015,215
+numalias C_017,216
+numalias D_004,217
+numalias D_006,218
+numalias D_007,219
+numalias D_009,220
+numalias D_013,221
+numalias D_015,222
+numalias E_007,223
+numalias E_008,224
+numalias route,225
+numalias Vol_bgm,250
+numalias Vol_voice,251
+numalias Vol_Se,252
+numalias TEXT_size,260
 
 ;defsub—Ìˆæ
 defsub setwin0
 defsub setwin1
 defsub setwin2
-defsub setwin3
 defsub cspchar
 defsub csptitle
+defsub cspmemory
 defsub stposition
 
 game
@@ -87,8 +93,6 @@ if %winmode == 0 csp 11
 if %winmode == 1 lsp 10,":s/30,30,0;#ffffff$0",55,430
 if %winmode == 1 lsp 11,"sys\namePanel.png",0,417,128
 
-if %winmode == 2 lsp 10,":s/30,30,0;#ffffff$1",55,50
-
 print 1
 
 saveon
@@ -103,20 +107,18 @@ return
 
 *setwin1
 textoff
-setwindow3 50,480,24,4,26,26,1,2,10,1,1,":a;sys/msgPanel.png",0,417
+if %TEXT_size == 0 setwindow3 50,480,30,3,24,24,1,2,10,1,1,":a;sys/msgPanel.png",0,417
+if %TEXT_size == 1 setwindow3 50,480,26,4,26,26,1,2,10,1,1,":a;sys/msgPanel.png",0,417
+if %TEXT_size == 2 setwindow3 50,480,22,4,30,30,1,2,10,1,1,":a;sys/msgPanel.png",0,417
 mov %winmode,1
 return
 
 *setwin2
 textoff
-setwindow3 100,50,20,10,24,24,1,2,10,1,1,":a;sys/fullPanel.png",0,0
+if %TEXT_size == 0 setwindow3 100,50,20,10,24,24,1,2,10,1,1,":a;sys/fullPanel.png",0,0
+if %TEXT_size == 1 setwindow3 100,50,18,10,26,26,1,2,10,1,1,":a;sys/fullPanel.png",0,0
+if %TEXT_size == 2 setwindow3 100,50,16,10,28,28,1,2,10,1,1,":a;sys/fullPanel.png",0,0
 mov %winmode,2
-return
-
-*setwin3
-textoff
-setwindow3 100,50,24,10,20,20,1,2,10,1,1,#000000,0,600,50,500
-mov %winmode,3
 return
 
 *cspchar
@@ -138,6 +140,17 @@ csp 44
 csp 45
 csp 49
 print 10,300
+return
+
+*cspmemory
+csp 51
+csp 52
+csp 53
+csp 54
+csp 55
+csp 56
+csp 57
+csp 58
 return
 
 *stposition
@@ -228,9 +241,9 @@ vsp 49,1
 
 exbtn 41,41, "P41"
 exbtn 42,42, "P42"
-exbtn 43,43,"P43"
-exbtn 44,44,"P44"
-exbtn 45,45,"P45"
+exbtn 43,43, "P43"
+exbtn 44,44, "P44"
+exbtn 45,45, "P45"
 
 exbtn_d "C41C42C43C44C45"
 
@@ -275,47 +288,52 @@ lsph 49,":a;sys/configBase.png",0,0:vsp 49,1
 print 1
 setwin1
 bgmstop
-select
-"‰¹—Êİ’è@ƒ}ƒXƒ^[‚P‚O‚O",*Onryo100,
-"‰¹—Êİ’è@ƒ}ƒXƒ^[‚T‚O",*Onryo50,
-"‰¹—Êİ’è@ƒ}ƒXƒ^[‚O",*Onryo0
 
-*Onryo100
-bgmvol 100
-voicevol 100
-sevol 100
+select "‰¹—Êİ’è",*volconfig,"•¶šƒTƒCƒY•ÏX",*mojisize,"‚¨‚í‚é",*title
+
+*volconfig
+
+selnum %Vol_bgm,"‰¹—Êİ’è@‚a‚f‚l‚P‚O‚O","‰¹—Êİ’è@‚a‚f‚l‚T‚O","‰¹—Êİ’è@‚a‚f‚l‚O"
+
+if %Vol_bgm == 0 mov %Vol_bgm,100
+if %Vol_bgm == 1 mov %Vol_bgm,50
+if %Vol_bgm == 2 mov %Vol_bgm,0
+
+bgmvol %Vol_bgm
+
+selnum %Vol_voice,"‰¹—Êİ’è@‚u‚n‚h‚b‚d‚P‚O‚O","‰¹—Êİ’è@‚u‚n‚h‚b‚d‚T‚O","‰¹—Êİ’è@‚u‚n‚h‚b‚d‚O"
+
+if %Vol_voice == 0 mov %Vol_voice,100
+if %Vol_voice == 1 mov %Vol_voice,50
+if %Vol_voice == 2 mov %Vol_voice,0
+
+voicevol %Vol_voice
+
+selnum %Vol_Se,"‰¹—Êİ’è@‚r‚d‚P‚O‚O","‰¹—Êİ’è@‚r‚d‚T‚O","‰¹—Êİ’è@‚r‚d‚O"
+
+if %Vol_Se == 0 mov %Vol_Se,100
+if %Vol_Se == 1 mov %Vol_Se,50
+if %Vol_Se == 2 mov %Vol_Se,0
+
+sevol %Vol_Se
+
+İ’è‚ªŠ®—¹‚µ‚Ü‚µ‚½\
+goto *title
+
+*mojisize
+selnum %TEXT_size,"•¶šƒTƒCƒY¬","•¶šƒTƒCƒY’†","•¶šƒTƒCƒY‘å"
+
+setwin1
+İ’è‚ªŠ®—¹‚µ‚Ü‚µ‚½\
 setwin0
-csptitle
 goto *title
-
-*Onryo50
-bgmvol 50
-voicevol 50
-sevol 50
-setwin0
-csptitle
-goto *title
-
-*Onryo0
-bgmvol 0
-voicevol 0
-sevol 0
-setwin0
-csptitle
-goto *title
-
-goto *title
-end
-
-*Onryoconfig
-
-return
 
 *memory
-lsph 49,"sys\exmPrologue.png",0,0:vsp 49,1
+
+lsph 69,"sys\exmPrologue.png",0,0:vsp 49,1
 print 1
 wait 2000
-csptitle
+cspmemory
 goto *title
 end
 
