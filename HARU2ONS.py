@@ -30,7 +30,7 @@ for snr_path in pathlist:
 
     with open(snr_path, encoding=char_code, errors='ignore') as f:
         
-        txt += 'cspchar\ngoto *title\n;--------------- '+ os.path.splitext(os.path.basename(snr_path))[0] +' ---------------\nend\n*' + os.path.splitext(os.path.basename(snr_path))[0] + '\n'
+        txt += 'cspchar\ngoto *title\n;--------------- '+ os.path.splitext(os.path.basename(snr_path))[0] +' ---------------\nend\n*' + os.path.splitext(os.path.basename(snr_path))[0] + '\nlookbackflush\n'
         txt = txt.replace('//', ';;;')
 
         #print(txt)
@@ -475,6 +475,10 @@ for snr_path in pathlist:
             line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
             line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
             line = line.replace('\\v\\','\\')
+            line = line.replace('mov %clearChika,1','mov %clearChika,1\ncsp -1:print 1:setwin0:goto *title')
+            line = line.replace('mov %clearNagomi,1','mov %clearNagomi,1\ncsp -1:print 1:setwin0:goto *title')
+            line = line.replace('mov %clearYuduki,1','mov %clearYuduki,1\ncsp -1:print 1:setwin0:goto *title')
+            line = line.replace('mov %clearYuu,1','mov %clearYuu,1\ncsp -1:print 1:setwin0:goto *title')
                 
         
 
