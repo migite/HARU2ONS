@@ -2,9 +2,7 @@ import glob
 import sys
 import os
 import re
-
 import chardet
-#from PIL import Image
 
 same_hierarchy = (os.path.dirname(sys.argv[0]))
 
@@ -443,13 +441,22 @@ for snr_path in pathlist:
                 line = 'mov %' + mov_line[1] + ',' + mov_line[2] + '\n' 
 
             elif trancelate_line:
+
+                if int(trancelate_line[3]) <= 10:
                 
-                line = 'delay ' + trancelate_line[3] + '\n'
+                    line = 'delay ' + str(trancelate_line[3]) + '00\n'
+
+                elif int(trancelate_line[3]) <= 100:
+                
+                    line = 'delay ' + str(trancelate_line[3]) + '0\n'
+
+                else:
+                    line = 'delay ' + str(trancelate_line[3]) + '\n'
 
             elif erojump_line:
                 #print(line)
 
-                line = 'gosub *'  + erojump_line[1] + '\n'
+                line = 'if %eroskip == 0 gosub *'  + erojump_line[1] + '\n'
 
             elif eroreturn_line:
                 print('Convert now…')
