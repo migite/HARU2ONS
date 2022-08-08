@@ -1,6 +1,6 @@
 ;$V2000G1000S800,600L10000
 *define
-caption "HARU2NS4ONSVer0.80"
+caption "HARU2NS4ONSVer0.82"
 nsa
 globalon
 rmenu "セーブ",save,"ロード",load,"リセット",reset,"スキップ",skip,"ログ",lookback
@@ -58,6 +58,7 @@ numalias Vol_bgm,250
 numalias Vol_voice,251
 numalias Vol_Se,252
 numalias TEXT_size,260
+numalias eroskip,261
 
 ;defsub領域
 defsub setwin0
@@ -286,13 +287,14 @@ end
 csptitle
 lsph 49,":a;sys/configBase.png",0,0:vsp 49,1
 print 1
-setwin1
 bgmstop
 
-select "音量設定",*volconfig,"文字サイズ変更",*mojisize,"おわる",*title
+*settingmenu
+setwin2
+select "音量設定",*volconfig,"文字サイズ変更",*mojisize,"Ｈシーンスキップ",*skipero,"おわる",*title
 
 *volconfig
-
+setwin1
 selnum %Vol_bgm,"音量設定　ＢＧＭ１００","音量設定　ＢＧＭ５０","音量設定　ＢＧＭ０"
 
 if %Vol_bgm == 0 mov %Vol_bgm,100
@@ -318,15 +320,23 @@ if %Vol_Se == 2 mov %Vol_Se,0
 sevol %Vol_Se
 
 設定が完了しました\
-goto *title
+setwin0
+goto *settingmenu
 
 *mojisize
+setwin1
 selnum %TEXT_size,"文字サイズ小","文字サイズ中","文字サイズ大"
 
-setwin1
+
 設定が完了しました\
 setwin0
-goto *title
+goto *settingmenu
+
+*skipero
+setwin1
+selnum %eroskip,"オフ","オン"
+設定が完了しました\
+goto *settingmenu
 
 *memory
 
