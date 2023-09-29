@@ -38,7 +38,7 @@ Prince of Sea氏が制作した[ONScripter_Multi_Converter](https://github.com/P
  コンフィグの音量調整機能を拡張<br>
  ついでにREADME.mdを多少整理しました<br>
 
- - 2023/08/18 Ver0.83 公開<br>
+ - 2022/08/18 Ver0.83 公開<br>
  コンバータ本体の変更点は特になし・GARbro側のオブジェクトエラー対策＆支援用にファイル作成、データ展開誘導のfirst.bat同梱
 
  - 2022/08/08 Ver0.82 公開<br>
