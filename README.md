@@ -1,8 +1,13 @@
 # HARU2ONS
 2004年にminoriより発売された「はるのあしおと」をONScripter向けに移植するコンバータです<br>
-ダウンロード版はファイルの暗号化が掛けられており、現状では展開ツールの存在も確認できていないので、動作の対象外です<br>
+ パッケージ版のみの対応となります。ダウンロード版は現在ファイルの展開方法が確立されていないので動作不可です。<br>
 
-追記:HARU2ONS.exeがpyinstallerでコンパイルしているためWindows Defenderで弾かれる可能性があります。除外設定などを用いてご利用ください　　
+<お知らせ>Prince of Sea氏が制作した[ONScripter_Multi_Converter](https://github.com/Prince-of-sea/ONScripter_Multi_Converter)に
+当コンバータを提供しております。<br>
+そちらもご利用ください。<br>
+追記:HARU2ONS.exeはpyinstallerでコンパイルしているためWindows Defenderで弾かれる可能性があります。<br>
+除外設定などを用いてご利用ください。
+
 
 ## ツールの使い方
  必要なファイルを指示通りに展開し、同一ディレクトリにHARU2ONS.exeを実行するだけです<br>
@@ -10,15 +15,38 @@
 
 ### シナリオ変換
 パッケージ版「はるのあしおと」をインストールして、各アーカイブ(.paz)を展開する<br>
-アーカイブ名と同じ名前のフォルダに展開をします。「st1.paz」のようなアーカイブは展開しなくて結構です<br>
+アーカイブ名と同じ名前のフォルダに展開をします。展開したあとのフォルダ構成は以下の通りです。
+```
+├─bg    ←bg.paz (bg1.pazは使用しません)
+├─bgm   ←bgm.paz
+├─mov   ←mov.paz
+├─scr   ←scr.paz (scr1.paz,scr2.pazは使用しません)
+├─se    ←se.paz
+├─st    ←st.paz (st1.pazは使用しません)
+├─sys   ←sys.paz (sys1.pazは使用しません)
+├─voice ←voice.paz
+├─HARU2ONS.exe
+├─default.txt
+└─first.bat
+```
 bgフォルダ、stフォルダに有るであろう*.aniのファイルは使用しません。各自消去して構いません<br>
 scrフォルダ内のev~.sc,test.scはすべて消去してください。特にtest.scは消去しないと変換エラーが起こります<br>
 <br>
 各自展開したら、HARU2ONS.exeを実行してください
 
-### PSP用変換作業
-Prince of Sea氏が制作した[ONScripter_Multi_Converter](https://github.com/Prince-of-sea/ONScripter_Multi_Converter)をご利用ください
- 
+### PSP,Vita用変換作業
+Prince of Sea氏が制作した[ONScripter_Multi_Converter](https://github.com/Prince-of-sea/ONScripter_Multi_Converter)をご利用ください<br>
+こちらのコンバータを使う際は以下のファイル構成です。
+```
+├─bg    ←bg.paz (bg1.pazは使用しません)
+├─bgm   ←bgm.paz
+├─mov   ←mov.paz
+├─scr   ←scr.paz (scr1.paz,scr2.pazは使用しません)
+├─se    ←se.paz
+├─st    ←st.paz (st1.pazは使用しません)
+├─sys   ←sys.paz (sys1.pazは使用しません)
+├─voice ←voice.paz
+```
 
 ### 注意点
  - 元のゲームデータは勿論、展開したゲームデータもすべて、minori様の著作物です。個人の利用の範囲でお楽しみください。
