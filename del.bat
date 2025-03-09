@@ -1,3 +1,0 @@
-del bg\\*.bmp
-
-pause
