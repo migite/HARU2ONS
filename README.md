@@ -62,6 +62,10 @@ Prince of Sea氏が制作した[ONScripter_Multi_Converter](https://github.com/P
 
 ---------------------------------------------------------------------------------------------------------------
 ## 更新履歴
+ - 2025/08/31 Ver0.85 公開<br>
+ [ONScripter_Multi_Converter](https://github.com/Prince-of-sea/ONScripter_Multi_Converter)と統合、またdefault.txtを削除しました<br>
+ 一応今まで通り単体でも使えるようにしてあります<br>
+
  - 2023/02/07 Ver0.84 公開<br>
  コンフィグの音量調整機能を拡張<br>
  ついでにREADME.mdを多少整理しました<br>
