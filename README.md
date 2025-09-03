@@ -36,17 +36,6 @@ scrフォルダ内のev~.sc,test.scはすべて消去してください。特に
 
 ### PSP,Vita用変換作業
 Prince of Sea氏が制作した[ONScripter_Multi_Converter](https://github.com/Prince-of-sea/ONScripter_Multi_Converter)をご利用ください<br>
-こちらのコンバータを使う際は以下のファイル構成です。
-```
-├─bg    ←bg.paz (bg1.pazは使用しません)
-├─bgm   ←bgm.paz
-├─mov   ←mov.paz
-├─scr   ←scr.paz (scr1.paz,scr2.pazは使用しません)
-├─se    ←se.paz
-├─st    ←st.paz (st1.pazは使用しません)
-├─sys   ←sys.paz (sys1.pazは使用しません)
-├─voice ←voice.paz
-```
 
 ### 注意点
  - 元のゲームデータは勿論、展開したゲームデータもすべて、minori様の著作物です。個人の利用の範囲でお楽しみください。
@@ -62,6 +51,9 @@ Prince of Sea氏が制作した[ONScripter_Multi_Converter](https://github.com/P
 
 ---------------------------------------------------------------------------------------------------------------
 ## 更新履歴
+ - 2025/08/31 Ver0.86 公開<br>
+ 前回更新で音声メニューとエンディングがエラーになっていたので修正<br>
+
  - 2025/08/31 Ver0.85 公開<br>
  [ONScripter_Multi_Converter](https://github.com/Prince-of-sea/ONScripter_Multi_Converter)と統合、またdefault.txtを削除しました<br>
  一応今まで通り単体でも使えるようにしてあります<br>

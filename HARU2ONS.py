@@ -100,7 +100,7 @@ def extract_resource(values: dict, values_ex: dict, pre_converted_dir: Path):
 def default_txt():
 	s = ''';$V2000G1000S800,600L10000
 *define
-caption "HARU2NS4ONSVer0.85"
+caption "HARU2NS4ONSVer0.86"
 nsa
 globalon
 rmenu "セーブ",save,"ロード",load,"リセット",reset,"スキップ",skip,"ログ",lookback
