@@ -2,7 +2,6 @@
 from pathlib import Path
 import concurrent.futures
 import glob
-import os
 import re
 
 
@@ -599,511 +598,205 @@ goto *volmenu_loop
 	return s
 
 
+_STAGE_BACKGROUND = r'(\S+)\s(\d*)\s(\d*)'
+_STAGE_CHARACTER = r'\sst(\S+)\s(\d*)'
+# 既存のマッチ範囲を保ち、人数が多い形式を先に試す。
+_STAGE_CAST_PATTERNS = (
+	re.compile(r'(\S+)\s(\d+)\s(\d+)' + r'\sst(\S+)\s(\d+)' * 4 + _STAGE_CHARACTER),
+	re.compile(_STAGE_BACKGROUND + _STAGE_CHARACTER * 3 + r'\sst(\S)\s(\d+)'),
+	re.compile(_STAGE_BACKGROUND + _STAGE_CHARACTER * 3),
+	re.compile(_STAGE_BACKGROUND + _STAGE_CHARACTER * 2),
+	re.compile(_STAGE_BACKGROUND + _STAGE_CHARACTER),
+)
+
+
+def _background_command(name, x, y):
+	return f'lsph 39,":a;bg\\{name}",-{x},-{y}:vsp 39,1\n'
+
+
+def _stage_with_characters(match):
+	background, x, y, *cast = match.groups()
+	commands = ['cspchar\n', _background_command(background, x, y)]
+	positions = []
+	for index, (name, position) in enumerate(zip(cast[::2], cast[1::2]), start=1):
+		commands.append(f'lsph {35 - index},":a;st\\st{name}",0,0\n')
+		positions.append(f'mov %x{index}_default,{800 - int(position)}\n')
+	commands.extend(positions)
+	commands.append('stposition\n\n')
+	if len(positions) == 1:
+		commands.append('print 1\n')
+	return ''.join(commands)
+
+
+def _convert_stage(line):
+	line = re.sub(
+		r'\.stage\s\* |\.stage\s|:\[\S+,\S+,\S+\]ol_\S+.png|:ol_\S+.png|:\[\S+,\S+,\S+\]',
+		'', line,
+	)
+	for pattern in _STAGE_CAST_PATTERNS:
+		match = pattern.match(line)
+		if match:
+			return _stage_with_characters(match)
+
+	# st で始まる背景・拡大表示は、画面効果付きの背景より優先する。
+	match = re.match(r'st(\S+)\s(\S{4,})\s(\d*)\s(\d*)', line)
+	if match:
+		return ('cspchar\n' + _background_command(match[2], match[3], match[4])
+			+ f'lsph 34,":a;bg\\st{match[1]}",0,0:vsp 34,1\n\nprint 1\n')
+	match = re.match(r'st(\S+)\s(\d*)\s(\d*)', line)
+	if match:
+		return f'cspchar\nlsph 34,":a;st\\st{match[1]}",0,0:vsp 34,1\n\nprint 1\n'
+
+	match = re.match(r'\S+\s(\S+)\s(\d+)\s(\d+)\sst(\S+)\s(\d)', line)
+	if match:
+		x = 800 - int(match[5])
+		return (_background_command(match[1], match[2], match[3])
+			+ f'lsph 34,":a;st\\st{match[4]}",{x},0\nmov %x1_default,{x}\nstposition\n\n')
+
+	match = re.match(r'\S+\s(\S{4,})\s(\d+)\s(\d+)', line) or re.match(_STAGE_BACKGROUND, line)
+	if match:
+		return 'cspchar\n' + _background_command(*match.groups()) + '\nprint 1\n'
+	return line
+
+
+class _ScenarioConverter:
+	"""全シナリオで共有する改ページ状態と選択肢の通し番号を管理する。"""
+
+	def __init__(self, show_progress):
+		self.show_progress = show_progress
+		self.group_messages = False
+		self.previous_message = None
+		self.choice_number = 0
+
+	def _message(self, match):
+		number, voice, speaker, text = match.groups()
+		speaker = re.sub(r'[@#]', '', speaker)
+		text = re.sub(r'\{\S*}|\\[nNaw]', '', text)
+		end = '@\n' if self.group_messages and number == self.previous_message else '\\\n'
+		self.previous_message = number
+		audio = f'dwave 0,"voice\\{voice}.ogg"\n' if voice else ''
+		return f'{audio}[{speaker}]{text}{end}'
+
+	def _panel(self, mode, line):
+		for digit, window in (('0', 0), ('1', 1), ('2', 2), ('3', 1)):
+			if digit in mode:
+				self.group_messages = window == 2
+				return f'setwin{window}\n'
+		return ';' + line
+
+	def _select(self, match):
+		groups = match.groups()
+		options = [f'"{text}",*{label}_{self.choice_number}'
+			for text, label in zip(groups[::2], groups[1::2])]
+		self.choice_number += 1
+		return 'select ' + ','.join(options) + '\n'
+
+	def convert_line(self, line):
+		match = re.match(r'\.message\s([0-9]+)\t(.*?)\t(.*?)\t(.+)', line)
+		if match:
+			return self._message(match)
+		if line.startswith('.stage'):
+			return _convert_stage(line)
+		if line.startswith('.playBGM'):
+			match = re.match(r'\.playBGM (\S*).ogg', line)
+			return f'bgm "bgm\\{match[1]}.ogg" \n' if match else 'bgmstop\n'
+		if line.startswith('.playSE '):
+			match = re.match(r'\.playSE (\S*).ogg', line)
+			return f'dwave 1,"se\\{match[1]}.ogg" \n' if match else 'dwavestop 1\n'
+
+		match = re.match(r'\.panel\s([0-9]+)', line)
+		if match:
+			return self._panel(match[1], line)
+		match = re.match(r'\.label (\S*)', line)
+		if match:
+			suffix = f'_{self.choice_number - 1}' if re.match(r'label[0-9]', match[1]) else ''
+			return f'*{match[1]}{suffix}\n'
+		match = re.match(r'\.include\s(\S*).sc', line)
+		if match:
+			return f'*{match[1]}\n'
+		match = re.match(r'\.shakeScreen\t[A-Z]+\t([0-9]+)\t([0-9]+)', line)
+		if match:
+			return f'quake {match[1]},{match[2]}\n'
+		match = re.match(r'\.wait (\d+)', line)
+		if match:
+			return f'delay {match[1]}\n'
+		match = re.match(r'\.chain (\S*).sc', line)
+		if match:
+			return f'goto *{match[1]}\nend\n'
+		match = (re.match(r'\.select\s(\S*):(\S*)\s(\S*):(\S*)\s(\S*):(\S*)', line)
+			or re.match(r'\.select\s(\S+):(\S+)\s(\S+):(\S+)', line))
+		if match:
+			return self._select(match)
+
+		if '.end' in line:
+			return ';end\n'
+		match = re.match(r'\.movie\s\S*\s(\S*).mpg', line)
+		if match:
+			return f'csp -1:print 1\nmovie "mov\\{match[1]}.mpg",click\nprint 1\n'
+		match = re.match(r'\.if (\S*) (\S*) (\d*) (\S*)', line)
+		if match:
+			return f'if %{match[1]} {match[2]} {match[3]}:goto *{match[4]}\n'
+		match = re.match(r'\.goto\s(\S*)', line)
+		if match:
+			return f'goto *{match[1]}\n'
+		match = re.match(r'\.set (\S*) = \S* \+ (\d*)', line)
+		if match:
+			return f'add %{match[1]},{match[2]}\n'
+		match = re.match(r'\.set (\S*) = (\d*)', line) or re.match(r'\.setGlobal\s(\S*) = (\S*)', line)
+		if match:
+			return f'mov %{match[1]},{match[2]}\n'
+		match = re.match(r'\.transition \d* \S* (\d*)', line)
+		if match:
+			duration = int(match[1])
+			zeros = '00' if duration <= 10 else '0' if duration <= 100 else ''
+			return f'delay {match[1]}{zeros}\n'
+		match = re.match(r'#include\s(\S*).sc', line)
+		if match:
+			return f'if %eroskip == 0 gosub *{match[1]}\n'
+		if line.startswith(';■エロシーンここまで'):
+			if self.show_progress:
+				print('Convert now…')
+			return 'return\nend\n'
+		match = re.match(r'\.[vh]scroll\s(\d+)\s\d+', line)
+		if match:
+			return f'delay {match[1]}\n'
+		return ';' + line + '\n'
+
+
+def _apply_game_fixes(line):
+	line = line.replace('[]　\\', 'click\nlookbackflush\n')
+	line = line.replace('if %clearNagomi < 1:goto *label2', 'if %clearNagomi < 1:goto *label2_2')
+	# 旧変換では Yuduki の置換が2回適用される。
+	line = line.replace('if %clearYuduki < 1:goto *label2', 'if %clearYuduki < 1:goto *label2_2_2')
+	line = line.replace('\\v\\', '\\')
+	for name in ('Chika', 'Nagomi', 'Yuduki', 'Yuu'):
+		flag = f'mov %clear{name},1'
+		line = line.replace(flag, flag + '\ncsp -1:print 1:setwin0:goto *title')
+	return line
+
+
 # メイン関数
 def main(values: dict = {}, values_ex: dict = {}, pre_converted_dir: Path = Path.cwd()):
-
-	#(マルチコンバータ利用時)自動展開
-	if values: extract_resource(values, values_ex, pre_converted_dir)
-
-
-
-	same_hierarchy = str(pre_converted_dir)
-
-	scenario_dir = os.path.join(same_hierarchy,'scr')
-
-	# with open(os.path.join(same_hierarchy, 'default.txt')) as f:
-	# 	txt = f.read()
-	
-	txt=default_txt()
-
-	pathlist = glob.glob(os.path.join(scenario_dir, '*.sc'))
-
-	#初期値リストです
-	Screen_line = 0
-	Messege_line = 0
-	Messege_before = 0
-	Labelcount = 0
-
-	if not values: print('コンバートを開始します…')
-
-	for snr_path in pathlist:
-
-		with open(snr_path, encoding='SHIFT_JIS', errors='ignore') as f:
-			
-			txt += 'cspchar\ngoto *title\n;--------------- '+ os.path.splitext(os.path.basename(snr_path))[0] +' ---------------\nend\n*' + os.path.splitext(os.path.basename(snr_path))[0] + '\nlookbackflush\n'
-			txt = txt.replace('//', ';;;')
-
-			#print(txt)
-			
-			for line in f:
-				#命令が特殊な形は先に分けておきます
-				TKT_line =  re.match(r'\.message\s([0-9]+)\t(.*?)\t(.*?)\t(.+)',line)
-				Stage_st_line =re.match(r'\.stage\s(\S*)\s(\d*)\s(\S*)\s(\d*)',line)
-				Stage_line = re.match(r'\.stage',line)
-				BGM_line = re.match(r'\.playBGM',line)
-				SE_line = re.match(r'\.playSE (\S*)',line)
-				Window_line = re.match(r'\.panel\s([0-9]+)([\s]*)([0-9]*)',line)
-				Label_line = re.match(r'\.label (\S*)',line)
-				Chain_line = re.match(r'\.chain (\S*).sc',line)
-				Include_line = re.match(r'\.include\s(\S*).sc',line)
-				Shake_line = re.match(r'\.shakeScreen\t([A-Z]+)\t([0-9]+)\t([0-9]+)',line)
-				Wait_line = re.match(r'\.wait (\d+)',line)
-				Select3_line = re.match(r'\.select\s(\S*):(\S*)\s(\S*):(\S*)\s(\S*):(\S*)',line)
-				Select2_line = re.match(r'\.select\s(\S+):(\S+)\s(\S+):(\S+)',line)
-				movie_line = re.match(r'\.movie\s(\S*)\s(\S*).mpg',line)
-				if_line = re.match(r'\.if (\S*) (\S*) (\d*) (\S*)',line)
-				Jump_line = re.match(r'\.goto\s(\S*)',line)
-				mov_line = re.match(r'\.setGlobal\s(\S*) = (\S*)',line)
-				add_line = re.match(r'\.set (\S*) =',line)
-				trancelate_line = re.match(r'\.transition (\d*) (\S*) (\d*)',line)
-				erojump_line = re.match(r'#include\s(\S*).sc',line)
-				eroreturn_line = re.match(r';■エロシーンここまで',line)
-				vscroll_line = re.match(r'\.vscroll\s(\d+)\s(\d+)',line)
-				hscroll_line = re.match(r'\.hscroll\s(\d+)\s(\d+)',line)
-
-
-
-				if TKT_line:
-					Space_line = ''
-					Messege_line = TKT_line[1]
-					VoicePath = TKT_line[2]
-					NoNameKigo = re.sub(r'@|#','',TKT_line[3])
-					NorubyTXT = re.sub(r'\{\S*}|\\n|\\N|\\a|\\w','',TKT_line[4])
-
-					#print(Screen_line)
-					if  Screen_line == 0:
-
-						Enter_line = '\\\n'
-
-					elif Screen_line == 1:
-
-						if Messege_line == Messege_before:
-							
-							Enter_line = '@\n'
-
-						else:
-							Enter_line = '\\\n'
-
-
-					else:
-
-						Enter_line = '\\\n'
-
-					linea = 'dwave 0,"voice\\' + VoicePath + '.ogg"\n'
-					lineb = '[' + NoNameKigo + ']' + NorubyTXT + Enter_line
-
-					if VoicePath == '':
-						line = lineb
-					
-					else:
-						line = linea + lineb
-
-					Messege_before = Messege_line
-
-					#print(line)
-
-					#if '#' in line:
-						#print(line)
-
-				elif Stage_line:
-					#BGや立ち絵の調節をします。最長一致から並べていきます
-
-					line = re.sub(r'\.stage\s\* |\.stage\s|\:\[(\S+)\,(\S+)\,(\S+)\]ol_(\S+).png|\:ol_(\S+).png|\:\[(\S+)\,(\S+)\,(\S+)\]','',line)
-					#print(line)
-					#背景 + 立ち絵最大5人で分類していきます。?
-					Stage1_line = re.match(r'(\S+)\s(\d+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d+)\sst(\S+)\s(\d*)',line)
-					Stage2_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)\sst(\S)\s(\d+)',line)
-					Stage3_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)',line)
-					Stage4_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)\sst(\S+)\s(\d*)',line)
-					Stage5_line = re.match(r'(\S+)\s(\d*)\s(\d*)\sst(\S+)\s(\d*)',line)
-					#ここから画面効果を含んだパターンです。画面効果は現在省いています
-					Stage6_line = re.match(r'(\S+)\s(\S+)\s(\d+)\s(\d+)\sst(\S+)\s(\d)',line)
-					Stage7_line = re.match(r'(\S+)\s(\S{4,})\s(\d+)\s(\d+)',line)
-					#ここからはst命令という名の背景だったり拡大などです
-					Stage11_line = re.match(r'st(\S+)\s(\S{4,})\s(\d*)\s(\d*)',line)
-					Stage12_line = re.match(r'st(\S+)\s(\d*)\s(\d*)',line)
-					#最後に背景表示のみです
-					Stage99_line = re.match(r'(\S+)\s(\d*)\s(\d*)',line)
-
-					
-
-					if Stage1_line:
-						#print(line)
-						#最長一致。背景画像+立ち絵5人
-						line0 = 'cspchar\n'
-						st1_x = 800 - int(Stage1_line[5])
-						st2_x = 800 - int(Stage1_line[7])
-						st3_x = 800 - int(Stage1_line[9])
-						st4_x = 800 - int(Stage1_line[11])
-						st5_x = 800 - int(Stage1_line[13])
-
-						line1 = 'lsph 39,":a;bg\\' + Stage1_line[1] + '",-' + Stage1_line[2] + ',-' + Stage1_line[3] + ':vsp 39,1\n'
-						line2 = 'lsph 34,":a;st\\st' + Stage1_line[4] + '",0,0\n'
-						line3 = 'lsph 33,":a;st\\st' + Stage1_line[6] + '",0,0\n'
-						line4 = 'lsph 32,":a;st\\st' + Stage1_line[8] + '",0,0\n'
-						line5 = 'lsph 31,":a;st\\st' + Stage1_line[10] + '",0,0\n'
-						line6 = 'lsph 30,":a;st\\st' + Stage1_line[12] + '",0,0\n'
-
-						line7 = 'mov %x1_default,' + str(st1_x) + '\n'
-						line8 = 'mov %x2_default,' + str(st2_x) + '\n'
-						line9 = 'mov %x3_default,' + str(st3_x) + '\n'
-						line10 = 'mov %x4_default,' + str(st4_x) + '\n'
-						line11 = 'mov %x5_default,' + str(st5_x) + '\n'
-						line12 = 'stposition\n'
-
-						line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + line7 + line8 + line9 + line10 + line11 + line12 +'\n'
-						#print(line)
-
-					elif Stage2_line:
-
-						line0 = 'cspchar\n'
-						st1_x = 800 - int(Stage2_line[5])
-						st2_x = 800 - int(Stage2_line[7])
-						st3_x = 800 - int(Stage2_line[9])
-						st4_x = 800 - int(Stage2_line[11])
-
-						line1 = 'lsph 39,":a;bg\\' + Stage2_line[1] + '",-' + Stage2_line[2] + ',-' + Stage2_line[3] + ':vsp 39,1\n'
-						line2 = 'lsph 34,":a;st\\st' + Stage2_line[4] + '",0,0\n'
-						line3 = 'lsph 33,":a;st\\st' + Stage2_line[6] + '",0,0\n'
-						line4 = 'lsph 32,":a;st\\st' + Stage2_line[8] + '",0,0\n'
-						line5 = 'lsph 31,":a;st\\st' + Stage2_line[10] + '",0,0\n'
-
-						line6 = 'mov %x1_default,' + str(st1_x) + '\n'
-						line7 = 'mov %x2_default,' + str(st2_x) + '\n'
-						line8 = 'mov %x3_default,' + str(st3_x) + '\n'
-						line9 = 'mov %x4_default,' + str(st4_x) + '\n'
-						line10 = 'stposition\n'
-
-						line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + line7 + line8 + line9 + line10 +'\n'
-						#print(line)
-
-					elif Stage3_line:
-						#print(line)
-						line0 = 'cspchar\n'
-						st1_x = 800 - int(Stage3_line[5])
-						st2_x = 800 - int(Stage3_line[7])
-						st3_x = 800 - int(Stage3_line[9])
-
-						line1 = 'lsph 39,":a;bg\\' + Stage3_line[1] + '",-' + Stage3_line[2] + ',-' + Stage3_line[3] + ':vsp 39,1\n'
-						line2 = 'lsph 34,":a;st\\st' + Stage3_line[4] + '",0,0\n'
-						line3 = 'lsph 33,":a;st\\st' + Stage3_line[6] + '",0,0\n'
-						line4 = 'lsph 32,":a;st\\st' + Stage3_line[8] + '",0,0\n'
-
-						line5 = 'mov %x1_default,' + str(st1_x) + '\n'
-						line6 = 'mov %x2_default,' + str(st2_x) + '\n'
-						line7 = 'mov %x3_default,' + str(st3_x) + '\n'
-						line8 = 'stposition\n'
-
-						line = line0 + line1 + line2 + line3 + line4 +line5 + line6 + line7 + line8 +'\n'
-
-						#print(line)
-					elif Stage4_line:
-						
-						#print(line)
-						line0 = 'cspchar\n'
-						st1_x = 800 - int(Stage4_line[5])
-						st2_x = 800 - int(Stage4_line[7])
-
-						line1 = 'lsph 39,":a;bg\\' + Stage4_line[1] + '",-' + Stage4_line[2] + ',-' + Stage4_line[3] + ':vsp 39,1\n'
-						line2 = 'lsph 34,":a;st\\st' + Stage4_line[4] + '",0,0\n'
-						line3 = 'lsph 33,":a;st\\st' + Stage4_line[6] + '",0,0\n'
-
-						line4 = 'mov %x1_default,' + str(st1_x) + '\n'
-						line5 = 'mov %x2_default,' + str(st2_x) + '\n'
-						line6 = 'stposition\n'
-
-						line = line0 + line1 + line2 + line3 + line4 +line5 + line6 +'\n'
-
-					elif Stage5_line:
-						line0 = 'cspchar\n'
-						st1_x = 800 - int(Stage5_line[5])
-
-						line1 = 'lsph 39,":a;bg\\' + Stage5_line[1] + '",-' + Stage5_line[2] + ',-' + Stage5_line[3] + ':vsp 39,1\n'
-						line2 = 'lsph 34,":a;st\\st' + Stage5_line[4] + '",0,0\n'
-
-						line3 = 'mov %x1_default,' + str(st1_x) + '\n'
-						line4 = 'stposition\n'
-						line = line0 + line1 + line2 + line3 + line4 +'\nprint 1\n'
-
-					elif Stage11_line:
-						#print(line)
-						line0 = 'cspchar\n'
-
-						line1 = 'lsph 39,":a;bg\\' + Stage11_line[2] + '",-' + Stage11_line[3] + ',-' + Stage11_line[4] + ':vsp 39,1\n'
-						line2 = 'lsph 34,":a;bg\\st' + Stage11_line[1] + '",0,0:vsp 34,1\n'
-
-						line = line0 + line1 + line2 + '\nprint 1\n'
-
-					elif Stage12_line:
-						#print(line)
-						line0 = 'cspchar\n'
-
-						line1 = 'lsph 34,":a;st\\st' + Stage12_line[1] + '",0,0:vsp 34,1\n'
-
-						line = line0 + line1 + '\nprint 1\n'
-
-					elif Stage6_line:
-						line0 = 'cspchar\n'
-						st1_x = 800 - int(Stage6_line[6])
-
-						line1 = 'lsph 39,":a;bg\\' + Stage6_line[2] + '",-' + Stage6_line[3] + ',-' + Stage6_line[4] + ':vsp 39,1\n'
-						line2 = 'lsph 34,":a;st\\st' + Stage6_line[5] + '",' + str(st1_x) + ',0\n'
-
-						line3 = 'mov %x1_default,' + str(st1_x) + '\n'
-						line4 = 'stposition\n'
-
-						line = line1 + line2 + line3 + line4 +'\n'
-
-					elif Stage7_line:
-						line0 = 'cspchar\n'
-
-						line1 = 'lsph 39,":a;bg\\' + Stage7_line[2] + '",-' + Stage7_line[3] + ',-' + Stage7_line[4] + ':vsp 39,1\n'
-
-						line =line0 + line1 + '\nprint 1\n'
-						#print(line)
-
-
-					elif Stage99_line:
-						#print(line)
-						line0 = 'cspchar\n'
-
-						line1 = 'lsph 39,":a;bg\\' + Stage99_line[1] + '",-' + Stage99_line[2] + ',-' + Stage99_line[3] + ':vsp 39,1\n'
-						line = line0 + line1 + '\nprint 1\n'
-						#print(line)
-
-					else:
-						line = line
-						#print(line)
-
-	
-				#背景CG・立ち絵の処理ここまで
-
-				elif BGM_line:
-
-					BGMSTART =re.match(r'\.playBGM (\S*).ogg',line)
-			
-					if BGMSTART:
-
-						line = 'bgm "bgm\\' + BGMSTART[1] + '.ogg" \n' 
-
-					else:
-						#BGM再生命令にファイルを指定していないときは一括でストップを掛けます
-						#本来は [playBGM *]のように[*]を使いますが、例外も含めストップさせておきます
-						line = 'bgmstop\n'
-
-				elif SE_line:
-
-					SESTART =re.match(r'\.playSE (\S*).ogg',line)
-
-					if SESTART:
-					
-						line = 'dwave 1,"se\\' + SESTART[1] + '.ogg" \n'
-
-					else:
-
-						line = 'dwavestop 1\n'
-
-				elif Window_line:
-					#ウインドウモードの切替です。0で非表示、1で画像通り、2で全画面です 3は電話演出用
-					#Screen_line変数は改行の仕方を変えるためにテストでおいています
-					#0のときはメッセージごとに改行、1のときはメッセージ番号が前の番号から変わったら改行です
-					
-					#print(line)
-					if '0' in Window_line[1]:
-
-						line = 'setwin0\n'
-						Screen_line = 5
-						#print(line)
-
-					elif '1' in Window_line[1]:
-
-						line = 'setwin1\n'
-						Screen_line = 0
-						#print(line)
-
-					elif '2' in Window_line[1]:
-
-						line = 'setwin2\n'
-						Screen_line = 1
-						#print(line)
-
-					elif '3' in Window_line[1]:
-						#print(line)
-						line = 'setwin1\n'
-						Screen_line = 0
-
-					else:
-						line = ';' + line
-						Screen_line == 9
-						#print(Window_line[1])
-
-
-				elif Label_line:
-
-					#テキスト内でのラベルジャンプを担当
-
-					if re.match(r'\.label label[0-9]',line):
-
-						#なんかラベル名義重複回避のためにカウンタ作ってたら一つずれたので
-						Labelcount2 = Labelcount - 1
-
-						line = '*' + Label_line[1] + '_' + str(Labelcount2) + '\n'
-
-						#print(line)
-					
-					else:
-						line = '*' + Label_line[1] + '\n'
-						#print(line)
-						
-
-				elif Include_line:
-					#print(line)
-					line = '*' + Include_line[1] + '\n'
-
-				elif Shake_line:
-					#未作成・dafault.txtで処理する書き方にする予定
-					#7/12訂正　このままで大丈夫そう
-					line = 'quake ' + Shake_line[2] + ',' + Shake_line[3] + '\n'
-					
-				elif Wait_line:
-					
-					#line.replace('\.wait','wait')  + '\\\n'
-					line = 'delay ' + Wait_line[1] + '\n'
-					#print(line)
-					
-				elif Chain_line:
-
-					line = 'goto *' + Chain_line[1] + '\nend\n'
-					#print(line)
-
-				elif Select3_line:
-
-					linea = '"' + Select3_line[1] + '",*' + Select3_line[2] + '_' + str(Labelcount) + ','
-					lineb = '"' + Select3_line[3] + '",*' + Select3_line[4] + '_' + str(Labelcount) + ','
-					linec = '"' + Select3_line[5] + '",*' + Select3_line[6] + '_' + str(Labelcount) + '\n'
-
-					line = 'select ' + linea + lineb + linec
-					Labelcount  = Labelcount + 1
-					#print(Labelcount)
-					
-					#print(line)
-
-				elif Select2_line:
-
-					linea = '"' + Select2_line[1] + '",*' + Select2_line[2] + '_' + str(Labelcount) + ','
-					lineb = '"' + Select2_line[3] + '",*' + Select2_line[4] + '_' + str(Labelcount) + '\n'
-
-					line = 'select ' + linea + lineb
-					Labelcount  = Labelcount + 1
-					#print(Labelcount)
-					#print(line)
-
-
-				elif '.end' in line:
-
-					line = ';end\n'
-
-				elif movie_line:
-
-					line = 'csp -1:print 1\nmovie "mov\\' + movie_line[2] + '.mpg",click\nprint 1\n'
-
-				elif if_line:
-
-					line = 'if %' + if_line[1] + ' ' + if_line[2] + ' ' + if_line[3] + ':goto *' + if_line[4] + '\n'
-
-				elif Jump_line:
-
-					line = 'goto *' + Jump_line[1] + '\n'
-
-				elif add_line:
-
-					
-					ADDVAR = re.match(r'\.set (\S*) = (\S*) \+ (\d*)',line)
-					ADD2VAR = re.match(r'\.set (\S*) = (\S*) \+ (\d*)',line)
-					SETVAR = re.match(r'\.set (\S*) = (\d*)',line)
-
-					if ADDVAR:
-						line = 'add %' +ADDVAR[1] + ',' + ADDVAR[3] + '\n'
-						#print(line)
-
-					elif SETVAR:
-
-						line = 'mov %' + SETVAR[1] + ',' + SETVAR[2] + '\n' 
-
-						#print(line)
-
-					else:
-
-						line = ';' + line + '\n'
-
-
-
-				elif mov_line:
-
-					line = 'mov %' + mov_line[1] + ',' + mov_line[2] + '\n' 
-
-				elif trancelate_line:
-
-					if int(trancelate_line[3]) <= 10:
-					
-						line = 'delay ' + str(trancelate_line[3]) + '00\n'
-
-					elif int(trancelate_line[3]) <= 100:
-					
-						line = 'delay ' + str(trancelate_line[3]) + '0\n'
-
-					else:
-						line = 'delay ' + str(trancelate_line[3]) + '\n'
-
-				elif erojump_line:
-					#print(line)
-
-					line = 'if %eroskip == 0 gosub *'  + erojump_line[1] + '\n'
-
-				elif eroreturn_line:
-					if not values: print('Convert now…')
-					line = 'return\nend\n'
-
-				elif vscroll_line:
-
-					line = 'delay ' + vscroll_line[1] + '\n'
-
-				elif hscroll_line:
-
-					line = 'delay ' + hscroll_line[1] + '\n'
-
-
-
-				else:
-					#if 'include' in line:
-						#print(line)
-					
-					line = ';' + line + '\n'
-				line = line.replace('[]　\\','click\nlookbackflush\n')
-				line = line.replace('if %clearNagomi < 1:goto *label2','if %clearNagomi < 1:goto *label2_2')
-				line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
-				line = line.replace('if %clearYuduki < 1:goto *label2','if %clearYuduki < 1:goto *label2_2')
-				line = line.replace('\\v\\','\\')
-				line = line.replace('mov %clearChika,1','mov %clearChika,1\ncsp -1:print 1:setwin0:goto *title')
-				line = line.replace('mov %clearNagomi,1','mov %clearNagomi,1\ncsp -1:print 1:setwin0:goto *title')
-				line = line.replace('mov %clearYuduki,1','mov %clearYuduki,1\ncsp -1:print 1:setwin0:goto *title')
-				line = line.replace('mov %clearYuu,1','mov %clearYuu,1\ncsp -1:print 1:setwin0:goto *title')
-					
-			
-
-				
-				txt += line
-
-		
-
-	if not values: print("処理が完了しました")
-
-	open(os.path.join(same_hierarchy,'0.txt'), 'w', encoding='cp932', errors='ignore').write(txt)
-
-		
-
-	
-	return
+	if values:
+		extract_resource(values, values_ex, pre_converted_dir)
+	else:
+		print('コンバートを開始します…')
+
+	root = Path(pre_converted_dir)
+	converter = _ScenarioConverter(show_progress=not values)
+	txt = default_txt()
+	for filename in glob.glob(str(root / 'scr' / '*.sc')):
+		path = Path(filename)
+		txt += f'cspchar\ngoto *title\n;--------------- {path.stem} ---------------\nend\n*{path.stem}\nlookbackflush\n'
+		# 元の変換と同じく、次のシナリオの開始時にそれまでの // を置換する。
+		txt = txt.replace('//', ';;;')
+		with path.open(encoding='shift_jis', errors='ignore') as scenario:
+			for line in scenario:
+				txt += _apply_game_fixes(converter.convert_line(line))
+
+	(root / '0.txt').write_text(txt, encoding='cp932', errors='ignore')
+	if not values:
+		print('処理が完了しました')
 
 
 #事前に展開済みなら一応単体でも動作するようにしておく
